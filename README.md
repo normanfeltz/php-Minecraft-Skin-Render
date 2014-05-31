@@ -7,6 +7,12 @@ Project first developed by <a href="https://github.com/supermamie/php-Minecraft-
 
 I have also used the traditional php naming conventions whenever needed for variable names using the underscore notation instead of the camel notation used previously.
 
+### Example of URL:
+`http://example.com/cf-mcskin.php?vr=-25&hr=-25&hrh=0&vrla=0&vrra=0&vrll=0&vrrl=0&ratio=12&format=png&displayHair=true&headOnly=false&user=cajogos`
+
+You may test it here: <a href="http://minecraft.technewbs.com/cf-mcskin.php?vr=-25&hr=-25&hrh=0&vrla=0&vrra=0&vrll=0&vrrl=0&ratio=12&format=png&displayHair=true&headOnly=false&user=cajogos" target="_blank">TechNewbs Minecraft Server</a>
+
+## Changes Made
 ### GET Parameters Translations
 The main reason why I wanted to translate this project was the fact that the previous GET parameters were not understandable and it had me try and guess what they all mean, therefore I have also renamed the parameters to match their English translations.
 
