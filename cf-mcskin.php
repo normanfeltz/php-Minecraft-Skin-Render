@@ -62,9 +62,9 @@
 	 * Returns a croped image.
 	 */
 	function cropToOldSkinFormat($img) {
-		//if($width !== $height) {
-		//	return $img;
-		//}
+		if($width !== $height) {
+			return $img;
+		}
 
 		$newWidth = imagesx($img);
 		$newHeight = $newWidth / 2;
