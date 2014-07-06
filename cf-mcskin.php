@@ -26,7 +26,7 @@
 	 
 	error_reporting( E_ERROR );
 	$seconds_to_cache = 60 * 60 * 24 * 7; // Cache duration sent to the browser.
-	$fallback_img = 'notfound.png'; // Use a not found skin whenever something goes wrong.
+	$fallback_img = 'char.png'; // Use a not found skin whenever something goes wrong.
 	
 	function microtime_float() {
 		list( $usec, $sec ) = explode( " ", microtime() );
