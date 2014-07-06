@@ -24,7 +24,7 @@ Supermamie's old parameters will still work.
 - `vrra` = Vertical Rotation Right Arm
 - `displayHair` = Either or not to display hairs. Set to "false" to NOT display hairs.
 - `headOnly` = Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair).
-- `format` = The format in which the image is to be rendered. PNG ("png") is used by default set to "svg" to use a vector version.
+- `format` = The format in which the image is to be rendered. PNG ("png") is used by default. Set to "svg" to use a vector version and "base64" for a JSON file containing the image as base64.
 - `ratio` = The size of the "png" image. The default and minimum value is 2.
 
 ### Changes Made
@@ -33,4 +33,5 @@ Supermamie's old parameters will still work.
 - Fixed non-transparent PNG images rendering incorrect (Fix is a bit experimental);
 - Made the old parameters by supermamie work again;
 - Made 1.8 skins work (still render as the old skin type);
+- Added ability to output a JSON file containing a base64 string of the image;
 - Made Steve the fallback image.

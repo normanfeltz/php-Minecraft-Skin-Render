@@ -1414,7 +1414,6 @@
 			<svg width="100%" height="100%" version="1.1"
 			xmlns="http://www.w3.org/2000/svg" viewBox="' . $minX . ' ' . $minY . ' ' . $width . ' ' . $height . '">';
 	} else {
-		header( 'Content-type: image/png' );
 		$image = imagecreatetruecolor( $ratio * $width + 1, $ratio * $height + 1 );
 		imagesavealpha( $image, true );
 		$trans_colour = imagecolorallocatealpha( $image, 0, 0, 0, 127 );
@@ -1601,7 +1600,22 @@
 		}
 		echo '<!-- TOTAL : ' . ( $times[ count( $times ) - 1 ][ 1 ] - $times[ 0 ][ 1 ] ) * 1000 . 'ms -->' . "\n";
 	} else {
-		imagepng( $image );
+		if(grabGetValue('format') == 'base64') {
+			// output png;base64
+			ob_start();
+			imagepng($image);
+			$imgData = ob_get_contents();
+			ob_end_clean();
+			
+			$data = array('encodedBase64PNG' => base64_encode($imgData),);
+			
+			header('Content-Type: application/json');
+			echo json_encode($data);
+		} else {
+			header( 'Content-type: image/png' );
+			imagepng( $image );
+		}
+		
 		imagedestroy( $image );
 		for ( $i = 1; $i < count( $times ); $i++ ) {
 			header( 'generation-time-' . $i . '-' . $times[ $i ][ 0 ] . ': ' . ( $times[ $i ][ 1 ] - $times[ $i - 1 ][ 1 ] ) * 1000 . 'ms' );
