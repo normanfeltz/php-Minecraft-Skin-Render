@@ -26,5 +26,6 @@ My goal is to fix some issues and hopefully create full support for the 1.8 skin
 
 ### Changes Made
 - Fixed dark blue skins;
+- Fixed not working SVG images (Bug in cajogos fork);
 - Made 1.8 skins work (still render as the old skin type);
 - Made Steve the fallback image.
