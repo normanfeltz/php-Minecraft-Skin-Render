@@ -1,28 +1,28 @@
 <?php
 	/****** MINECRAFT 3D Skin Generator *****
-	* The contents of this project were first developed by Pierre Gros on 17th April 2012.
-	* It has once been modified by Carlos Ferreira (http://www.carlosferreira.me) on 31st May 2014.
-	* Translations done by Carlos Ferreira.
-	*
-	**** GET Parameters ****
-	** These parameters have been renamed to match their English translations **
-	* user - Minecraft's username for the skin to be rendered.
-	* vr - Vertical Rotation.
-	* hr - Horizontal Rotation.
-	*
-	* hrh - Horizontal Rotation of the Head.
-	*
-	* vrll - Vertical Rotation of the Left Leg.
-	* vrrl - Vertical Rotation of the Right Leg.
-	* vrla - Vertical Rotation of the Left Arm.
-	* vrra - Vertical Rotation of the Right Arm.
-	*
-	* displayHair - Either or not to display hairs. Set to "false" to NOT display hairs.
-	* headOnly - Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair).
-	*
-	* format - The format in which the image is to be rendered. PNG ("png") is used by default set to "svg" to use a vector version.
-	* ratio - The size of the "png" image. The default and minimum value is 2.
-	*/
+	 * The contents of this project were first developed by Pierre Gros on 17th April 2012.
+	 * It has once been modified by Carlos Ferreira (http://www.carlosferreira.me) on 31st May 2014.
+	 * Translations done by Carlos Ferreira.
+	 *
+	 **** GET Parameters ****
+	 ** These parameters have been renamed to match their English translations **
+	 * user - Minecraft's username for the skin to be rendered.
+	 * vr - Vertical Rotation.
+	 * hr - Horizontal Rotation.
+	 *
+	 * hrh - Horizontal Rotation of the Head.
+	 *
+	 * vrll - Vertical Rotation of the Left Leg.
+	 * vrrl - Vertical Rotation of the Right Leg.
+	 * vrla - Vertical Rotation of the Left Arm.
+	 * vrra - Vertical Rotation of the Right Arm.
+	 *
+	 * displayHair - Either or not to display hairs. Set to "false" to NOT display hairs.
+	 * headOnly - Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair).
+	 *
+	 * format - The format in which the image is to be rendered. PNG ("png") is used by default set to "svg" to use a vector version.
+	 * ratio - The size of the "png" image. The default and minimum value is 2.
+	 */
 	 
 	error_reporting( E_ERROR );
 	$seconds_to_cache = 60 * 60 * 24 * 7; // Cache duration sent to the browser.
@@ -31,6 +31,28 @@
 	function microtime_float() {
 		list( $usec, $sec ) = explode( " ", microtime() );
 		return ( (float) $usec + (float) $sec );
+	}
+	
+	/* Function converts a non true color image to
+	 * true color. This fixes the dark blue skins.
+	 * 
+	 * Espects an image.
+	 * Returns a true color image.
+	 */
+	function convertToTrueColor($img) {
+		if(imageistruecolor($img)) {
+			return $img;
+		}
+
+		$dst = imagecreatetruecolor(imagesx($img), imagesy($img));
+		imagesavealpha($dst, true);
+		$trans_colour = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+		imagefill($dst, 0, 0, $trans_colour);
+		
+		imagecopy($dst, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
+		imagedestroy($img);
+
+		return $dst;
 	}
 	
 	$times = array(
@@ -60,6 +82,9 @@
 		// Bad ratio created
 		$img_png = imageCreateFromPng( $fallback_img );
 	}
+	
+	// Convert the image to true color if not a true color
+	$img_png = convertToTrueColor($img_png);
 	
 	$hd_ratio                     = $height / 32; // Set HD ratio to 2 if the skin is 128x64
 	$times[]                      = array(
