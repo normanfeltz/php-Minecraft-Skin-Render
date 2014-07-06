@@ -1591,7 +1591,7 @@
 				$points_2d .= $coord[ 'x' ] * $ratio . ',' . $coord[ 'y' ] * $ratio . ' ';
 			}
 			$comment = '';
-			return $comment . '<polygon points="' . $points_2d . '" style="fill:rgba(' . $r . ',' . $g . ',' . $b . ',' . $a . ')" />' . "\n";
+			return $comment . '<polygon points="' . $points_2d . '" style="fill:rgba(' . $r . ',' . $g . ',' . $b . ',' . $vR . ')" />' . "\n";
 		}
 		function addPngPolygon( &$image, $minX, $minY, $ratio )
 		{
