@@ -83,6 +83,72 @@
 		return $newImgPng;
 	}
 	
+	/* Function converts the old _GET names to
+	 * the new names. This makes it still compatable
+	 * with scrips using the old names.
+	 * 
+	 * Espects the English _GET name.
+	 * Returns the _GET value.
+	 */
+	function grabGetValue($name) {
+		switch ($name) {
+			case 'user':
+				if(isset($_GET['user'])) {
+					return $_GET['user'];
+				}
+				return $_GET['login'];
+			case 'vr':
+				if(isset($_GET['vr'])) {
+					return $_GET['vr'];
+				}
+				return $_GET['a'];
+			case 'hr':
+				if(isset($_GET['hr'])) {
+					return $_GET['hr'];
+				}
+				return $_GET['w'];
+			case 'hrh':
+				if(isset($_GET['hrh'])) {
+					return $_GET['hrh'];
+				}
+				return $_GET['wt'];
+			case 'vrll':
+				if(isset($_GET['vrll'])) {
+					return $_GET['vrll'];
+				}
+				return $_GET['ajg'];
+			case 'vrrl':
+				if(isset($_GET['vrrl'])) {
+					return $_GET['vrrl'];
+				}
+				return $_GET['ajd'];
+			case 'vrla':
+				if(isset($_GET['vrla'])) {
+					return $_GET['vrla'];
+				}
+				return $_GET['abg'];
+			case 'vrra':
+				if(isset($_GET['vrra'])) {
+					return $_GET['vrra'];
+				}
+				return $_GET['abd'];
+			case 'displayHair':
+				if(isset($_GET['displayHair'])) {
+					return $_GET['displayHair'];
+				}
+				return $_GET['displayHairs'];
+			case 'headOnly':
+				return $_GET['headOnly'];
+			case 'format':
+				return $_GET['format'];
+			case 'ratio':
+				return $_GET['ratio'];
+			default:
+				return null;
+		}
+		
+	}
+	
 	$times = array(
 		 array(
 			 'Start',
@@ -90,7 +156,7 @@
 		) 
 	);
 	
-	$username = $_GET[ 'user' ];
+	$username = grabGetValue('user');
 	if ( trim( $username ) == '' ) {
 		$img_png = imageCreateFromPng( $fallback_img );
 	} else {
@@ -123,10 +189,10 @@
 		microtime_float() 
 	);
 	
-	$vR                           = $_GET[ 'vr' ];
-	$hR                           = $_GET[ 'hr' ];
-	$head_only                    = ( $_GET[ 'headOnly' ] == 'true' );
-	$display_hair                 = ( $_GET[ 'displayHair' ] != 'false' );
+	$vR                           = grabGetValue('vr');
+	$hR                           = grabGetValue('hr');
+	$head_only                    = ( grabGetValue('headOnly') == 'true' );
+	$display_hair                 = ( grabGetValue('displayHair') != 'false' );
 	// Rotation variables in radians (3D Rendering)
 	$alpha                        = deg2rad( $vR ); // Vertical rotation on the X axis.
 	$omega                        = deg2rad( $hR ); // Horizontal rotation on the Y axis.
@@ -144,7 +210,7 @@
 	);
 	
 	$alpha_head                   = 0;
-	$omega_head                   = deg2rad( $_GET[ 'hrh' ] );
+	$omega_head                   = deg2rad( grabGetValue('hrh') );
 	$members_angles[ 'head' ]     = array(
 		 'cos_alpha' => cos( $alpha_head ),
 		'sin_alpha' => sin( $alpha_head ),
@@ -158,7 +224,7 @@
 		'sin_omega' => sin( $omega_head ) 
 	);
 	
-	$alpha_right_arm              = deg2rad( $_GET[ 'vrra' ] );
+	$alpha_right_arm              = deg2rad( grabGetValue('vrra') );
 	$omega_right_arm              = 0;
 	$members_angles[ 'rightArm' ] = array(
 		 'cos_alpha' => cos( $alpha_right_arm ),
@@ -167,7 +233,7 @@
 		'sin_omega' => sin( $omega_right_arm ) 
 	);
 	
-	$alpha_left_arm               = deg2rad( $_GET[ 'vrla' ] );
+	$alpha_left_arm               = deg2rad( grabGetValue('vrla') );
 	$omega_left_arm               = 0;
 	$members_angles[ 'leftArm' ]  = array(
 		 'cos_alpha' => cos( $alpha_left_arm ),
@@ -176,7 +242,7 @@
 		'sin_omega' => sin( $omega_left_arm ) 
 	);
 	
-	$alpha_right_leg              = deg2rad( $_GET[ 'vrrl' ] );
+	$alpha_right_leg              = deg2rad( grabGetValue('vrrl') );
 	$omega_right_leg              = 0;
 	$members_angles[ 'rightLeg' ] = array(
 		 'cos_alpha' => cos( $alpha_right_leg ),
@@ -185,7 +251,7 @@
 		'sin_omega' => sin( $omega_right_leg ) 
 	);
 	
-	$alpha_left_leg               = deg2rad( $_GET[ 'vrll' ] );
+	$alpha_left_leg               = deg2rad( grabGetValue('vrll') );
 	$omega_left_leg               = 0;
 	$members_angles[ 'leftLeg' ]  = array(
 		 'cos_alpha' => cos( $alpha_left_leg ),
@@ -1259,7 +1325,7 @@
 	);
 	$width   = $maxX - $minX;
 	$height  = $maxY - $minY;
-	$ratio   = intval( $_GET[ 'ratio' ] );
+	$ratio   = intval( grabGetValue('ratio') );
 	if ( $ratio < 2 ) {
 		$ratio = 2;
 	}
@@ -1269,7 +1335,7 @@
 		header( 'Pragma: cache' );
 		header( 'Cache-Control: max-age=' . $seconds_to_cache );
 	}
-	if ( $_GET[ 'format' ] == 'svg' ) {
+	if ( grabGetValue('format') == 'svg' ) {
 		header( 'Content-Type: image/svg+xml' );
 		echo '<?xml version="1.0" standalone="no"?>
 			<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
@@ -1446,7 +1512,7 @@
 		foreach ( $pieces as $piece => $faces ) {
 			foreach ( $faces as $face ) {
 				foreach ( $polygons[ $piece ][ $face ] as $poly ) {
-					if ( $_GET[ 'format' ] == 'svg' )
+					if ( grabGetValue('format') == 'svg' )
 						echo $poly->getSvgPolygon( 1 );
 					else
 						$poly->addPngPolygon( $image, $minX, $minY, $ratio );
@@ -1458,7 +1524,7 @@
 		 'Display-image',
 		microtime_float() 
 	);
-	if ( $_GET[ 'format' ] == 'svg' ) {
+	if ( grabGetValue('format') == 'svg' ) {
 		echo '</svg>' . "\n";
 		for ( $i = 1; $i < count( $times ); $i++ ) {
 			echo '<!-- ' . ( $times[ $i ][ 1 ] - $times[ $i - 1 ][ 1 ] ) * 1000 . 'ms : ' . $times[ $i ][ 0 ] . ' -->' . "\n";
