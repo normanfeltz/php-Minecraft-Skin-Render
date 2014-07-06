@@ -1607,10 +1607,8 @@
 			$imgData = ob_get_contents();
 			ob_end_clean();
 			
-			$data = array('encodedBase64PNG' => base64_encode($imgData),);
-			
-			header('Content-Type: application/json');
-			echo json_encode($data);
+			header("Content-Type: text/plain");
+			echo base64_encode($imgData);
 		} else {
 			header( 'Content-type: image/png' );
 			imagepng( $image );
