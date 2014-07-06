@@ -55,6 +55,32 @@
 		return $dst;
 	}
 	
+	/* Function converts a 1.8 skin (which is not supported by
+	 * the script) to the old skin format.
+	 * 
+	 * Espects an image.
+	 * Returns a croped image.
+	 */
+	function cropToOldSkinFormat($img) {
+		//if($width !== $height) {
+		//	return $img;
+		//}
+
+		$newWidth = imagesx($img);
+		$newHeight = $newWidth / 2;
+		
+		$newImgPng = imagecreatetruecolor($newWidth, $newHeight);
+		imagesavealpha($newImgPng, true);
+		$trans_colour = imagecolorallocatealpha($newImgPng, 255, 255, 255, 127);
+		imagefill($newImgPng, 0, 0, $trans_colour);
+		
+		imagecopy($newImgPng, $img, 0, 0, 0, 0, $newWidth, $newHeight);
+		
+		imagedestroy($img);
+		
+		return $newImgPng;
+	}
+	
 	$times = array(
 		 array(
 			 'Start',
@@ -75,16 +101,19 @@
 	
 	imageAlphaBlending( $img_png, true );
 	imageSaveAlpha( $img_png, true );
-	$width  = imagesx( $img_png );
-	$height = imagesy( $img_png );
 	
 	if ( !( $width == $height * 2 ) || $height % 32 != 0 ) {
 		// Bad ratio created
 		$img_png = imageCreateFromPng( $fallback_img );
 	}
 	
-	// Convert the image to true color if not a true color
+	// crop the image if it's a 1.8 skin.
+	$img_png = cropToOldSkinFormat($img_png);
+	// Convert the image to true color if not a true color image
 	$img_png = convertToTrueColor($img_png);
+	
+	$width  = imagesx( $img_png );
+	$height = imagesy( $img_png );
 	
 	$hd_ratio                     = $height / 32; // Set HD ratio to 2 if the skin is 128x64
 	$times[]                      = array(
