@@ -11,6 +11,8 @@ My goal is to fix some issues and hopefully create full support for the 1.8 skin
 `http://example.com/cf-mcskin.php?vr=-25&hr=-25&hrh=0&vrla=0&vrra=0&vrll=0&vrrl=0&ratio=12&format=png&displayHair=true&headOnly=false&user=cajogos`
 
 ### Parameters
+Supermamie's old parameters will still work.
+
 - user = Minecraft's username for the skin to be rendered.
 - vr = Vertical Rotation
 - hr = Horizontal Rotation
@@ -27,5 +29,6 @@ My goal is to fix some issues and hopefully create full support for the 1.8 skin
 ### Changes Made
 - Fixed dark blue skins;
 - Fixed not working SVG images (Bug in cajogos fork);
+- Made the old parameters by supermamie work again;
 - Made 1.8 skins work (still render as the old skin type);
 - Made Steve the fallback image.
