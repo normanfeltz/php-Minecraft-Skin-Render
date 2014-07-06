@@ -30,6 +30,7 @@ Supermamie's old parameters will still work.
 ### Changes Made
 - Fixed dark blue skins;
 - Fixed not working SVG images (Bug in cajogos fork);
+- Fixed non-transparent PNG images rendering incorrect (Fix is a bit experimental);
 - Made the old parameters by supermamie work again;
 - Made 1.8 skins work (still render as the old skin type);
 - Made Steve the fallback image.
