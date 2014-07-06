@@ -24,7 +24,7 @@ My goal is to fix some issues and hopefully create full support for the 1.8 skin
 - format = The format in which the image is to be rendered. PNG ("png") is used by default set to "svg" to use a vector version.
 - ratio = The size of the "png" image. The default and minimum value is 2.
 
-## Changes Made
+### Changes Made
 - Fixed dark blue skins;
 - Made 1.8 skins work (still render as the old skin type);
 - Made Steve the fallback image.
