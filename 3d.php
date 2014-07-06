@@ -83,6 +83,74 @@
 		return $newImgPng;
 	}
 	
+	/* Function fixes issues with images that have a solid background
+	 * 
+	 * Espects an tru color image.
+	 * Returns an image.
+	 */
+	function makeBackgroundTransparent($img) {
+		// check if the corner box is one solid color
+		$tempValue = null;
+		
+		for ($iH = 0; $iH < 8; $iH++) {
+			for ($iV = 0; $iV < 8; $iV++) {
+				$pixelColor = imagecolorat($img, $iH, $iV);
+				
+				if($tempValue === null) {
+					$tempValue = $pixelColor;
+				} else if ($tempValue != $pixelColor){
+					// Cannot determine a background color, file is probably fine
+					return $img;
+				}
+			}
+		}
+		
+		// the entire block is one solid color. Use this color to clear the background.
+		$r = ($tempValue >> 16) & 0xFF;
+		$g = ($tempValue >> 8) & 0xFF;
+		$b = $tempValue & 0xFF;
+		
+			
+		//imagealphablending($dst, true);
+		imagesavealpha($img, false);
+		$transparant = imagecolorallocate($img, $r, $g, $b);
+		imagecolortransparent($img, $transparant);
+		
+		$imgX = imagesx($img);
+		$imgY = imagesy($img);
+		
+		$dst = imagecreatetruecolor($imgX, $imgY);
+		imagesavealpha($dst, true);
+		$trans_colour = imagecolorallocatealpha($dst, $r, $g, $b, 127);
+		imagefill($dst, 0, 0, $trans_colour);
+		
+		// fill the areas that should not be transparant		
+		// create fill
+		$color = imagecolorallocate($dst, $r, $g, $b);
+		$positionMultiply = $imgX / 64;
+		
+		// head
+		imagefilledrectangle($dst, 8*$positionMultiply, 0*$positionMultiply, 23*$positionMultiply, 7*$positionMultiply, $color);
+		imagefilledrectangle($dst, 0*$positionMultiply, 8*$positionMultiply, 31*$positionMultiply, 15*$positionMultiply, $color);
+		
+		// right leg, body, right arm
+		imagefilledrectangle($dst, 4*$positionMultiply, 16*$positionMultiply, 11*$positionMultiply, 19*$positionMultiply, $color);
+		imagefilledrectangle($dst, 20*$positionMultiply, 16*$positionMultiply, 35*$positionMultiply, 19*$positionMultiply, $color);
+		imagefilledrectangle($dst, 44*$positionMultiply, 16*$positionMultiply, 51*$positionMultiply, 19*$positionMultiply, $color);
+		imagefilledrectangle($dst, 0*$positionMultiply, 20*$positionMultiply, 54*$positionMultiply, 31*$positionMultiply, $color);
+		
+		// left leg, left arm
+		imagefilledrectangle($dst, 20*$positionMultiply, 48*$positionMultiply, 27*$positionMultiply, 51*$positionMultiply, $color);
+		imagefilledrectangle($dst, 36*$positionMultiply, 48*$positionMultiply, 43*$positionMultiply, 51*$positionMultiply, $color);
+		imagefilledrectangle($dst, 16*$positionMultiply, 52*$positionMultiply, 47*$positionMultiply, 63*$positionMultiply, $color);
+		
+		imagecopy($dst, $img, 0, 0, 0, 0, $imgX, $imgY);
+		
+		imagedestroy($img);
+		
+		return $dst;
+	}
+	
 	/* Function converts the old _GET names to
 	 * the new names. This makes it still compatable
 	 * with scrips using the old names.
@@ -175,6 +243,8 @@
 		$img_png = imageCreateFromPng( $fallback_img );
 	}
 	
+	// makeBackgroundTransparent
+	$img_png = makeBackgroundTransparent($img_png);
 	// crop the image if it's a 1.8 skin.
 	$img_png = cropToOldSkinFormat($img_png);
 	// Convert the image to true color if not a true color image
