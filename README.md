@@ -11,7 +11,7 @@ My goal is to fix some issues and hopefully create full support for the 1.8 skin
 `http://example.com/3d.php?vr=-25&hr=-25&hrh=0&vrla=0&vrra=0&vrll=0&vrrl=0&ratio=12&format=png&displayHair=true&headOnly=false&user=cajogos`
 Note: The old parameters by supermamie will still work.
 
-### Parameters
+### Required parameters
 Supermamie's old parameters will still work.
 
 - `user` = Minecraft's username for the skin to be rendered.
@@ -27,6 +27,10 @@ Supermamie's old parameters will still work.
 - `format` = The format in which the image is to be rendered. PNG ("png") is used by default. Set to "svg" to use a vector version and "base64" for an encoded base64 string of the image.
 - `ratio` = The size of the "png" image. The default and minimum value is 2.
 
+### Optional parameters
+These parameters can be added to the URL, but are not required.
+- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. "false" by default.
+
 ### Changes Made
 - Fixed dark blue skins;
 - Fixed not working SVG images (Bug in cajogos fork);
@@ -34,4 +38,5 @@ Supermamie's old parameters will still work.
 - Made the old parameters by supermamie work again;
 - Made 1.8 skins work (still render as the old skin type);
 - Added ability to output an encoded base64 string of the image;
+- Added optional AA (image smoothing) parameter.
 - Made Steve the fallback image.

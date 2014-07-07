@@ -211,6 +211,11 @@
 				return $_GET['format'];
 			case 'ratio':
 				return $_GET['ratio'];
+			case 'aa':
+				if(isset($_GET['aa'])) {
+					return $_GET['aa'];
+				}
+				return 'false';
 			default:
 				return null;
 		}
@@ -263,6 +268,7 @@
 	$hR                           = grabGetValue('hr');
 	$head_only                    = ( grabGetValue('headOnly') == 'true' );
 	$display_hair                 = ( grabGetValue('displayHair') != 'false' );
+	$aa                   		  = ( grabGetValue('aa') == 'true' );
 	// Rotation variables in radians (3D Rendering)
 	$alpha                        = deg2rad( $vR ); // Vertical rotation on the X axis.
 	$omega                        = deg2rad( $hR ); // Horizontal rotation on the Y axis.
@@ -1399,6 +1405,12 @@
 	if ( $ratio < 2 ) {
 		$ratio = 2;
 	}
+	
+	if($aa === true) {
+		// double the ration for downscaling later (sort of AA)
+		$ratio = $ratio * 2;
+	}
+	
 	if ( $seconds_to_cache > 0 ) {
 		$ts = gmdate( "D, d M Y H:i:s", time() + $seconds_to_cache ) . ' GMT';
 		header( 'Expires: ' . $ts );
@@ -1414,7 +1426,12 @@
 			<svg width="100%" height="100%" version="1.1"
 			xmlns="http://www.w3.org/2000/svg" viewBox="' . $minX . ' ' . $minY . ' ' . $width . ' ' . $height . '">';
 	} else {
-		$image = imagecreatetruecolor( $ratio * $width + 1, $ratio * $height + 1 );
+		$srcWidth = $ratio * $width + 1;
+		$srcHeight = $ratio * $height + 1;
+		$realWidth = $srcWidth / 2;
+		$realHeight = $srcHeight / 2;
+		
+		$image = imagecreatetruecolor( $srcWidth, $srcHeight);
 		imagesavealpha( $image, true );
 		$trans_colour = imagecolorallocatealpha( $image, 0, 0, 0, 127 );
 		imagefill( $image, 0, 0, $trans_colour );
@@ -1600,6 +1617,19 @@
 		}
 		echo '<!-- TOTAL : ' . ( $times[ count( $times ) - 1 ][ 1 ] - $times[ 0 ][ 1 ] ) * 1000 . 'ms -->' . "\n";
 	} else {
+		
+		if($aa === true) {
+			// image normal size (sort of AA).
+			// resize the image down to it's normal size so it will be smoother
+			$destImage = imagecreatetruecolor($realWidth, $realHeight);
+			imagesavealpha( $destImage, true );
+			$trans_colour = imagecolorallocatealpha( $destImage, 0, 0, 0, 127 );
+			imagefill( $destImage, 0, 0, $trans_colour );
+			
+			imagecopyresampled($destImage, $image, 0, 0, 0, 0, $realWidth, $realHeight, $srcWidth, $srcHeight);
+			$image = $destImage;
+		}
+		
 		if(grabGetValue('format') == 'base64') {
 			// output png;base64
 			ob_start();
@@ -1615,6 +1645,7 @@
 		}
 		
 		imagedestroy( $image );
+		imagedestroy( $destImage );
 		for ( $i = 1; $i < count( $times ); $i++ ) {
 			header( 'generation-time-' . $i . '-' . $times[ $i ][ 0 ] . ': ' . ( $times[ $i ][ 1 ] - $times[ $i - 1 ][ 1 ] ) * 1000 . 'ms' );
 		}
