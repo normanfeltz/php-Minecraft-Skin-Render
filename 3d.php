@@ -7,7 +7,6 @@
 	 * Fixing various issues.
 	 *
 	 **** GET Parameters ****
-	 ** These parameters have been renamed to match their English translations **
 	 * user - Minecraft's username for the skin to be rendered.
 	 * vr - Vertical Rotation.
 	 * hr - Horizontal Rotation.
@@ -24,15 +23,34 @@
 	 *
 	 * format - The format in which the image is to be rendered. PNG ("png") is used by default set to "svg" to use a vector version.
 	 * ratio - The size of the "png" image. The default and minimum value is 2.
+	 * 
+	 * aa - Image smooting, false by default.
 	 */
 	 
 	error_reporting( E_ERROR );
+	
 	$seconds_to_cache = 60 * 60 * 24 * 7; // Cache duration sent to the browser.
 	$fallback_img = 'char.png'; // Use a not found skin whenever something goes wrong.
 	
 	function microtime_float() {
 		list( $usec, $sec ) = explode( " ", microtime() );
 		return ( (float) $usec + (float) $sec );
+	}
+	
+	/* Function creates a blank canvas
+	 * with transparancy with the size of the
+	 * given image.
+	 * 
+	 * Espects canvas with and canvast height.
+	 * Returns a empty canvas.
+	 */
+	function createEmptyCanvas($w, $h) {
+		$dst = imagecreatetruecolor($w, $h);
+		imagesavealpha($dst, true);
+		$trans_colour = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+		imagefill($dst, 0, 0, $trans_colour);
+		
+		return $dst;
 	}
 	
 	/* Function converts a non true color image to
@@ -46,11 +64,8 @@
 			return $img;
 		}
 
-		$dst = imagecreatetruecolor(imagesx($img), imagesy($img));
-		imagesavealpha($dst, true);
-		$trans_colour = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-		imagefill($dst, 0, 0, $trans_colour);
-		
+		$dst = createEmptyCanvas(imagesx($img), imagesy($img));
+	
 		imagecopy($dst, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));
 		imagedestroy($img);
 
@@ -71,13 +86,9 @@
 		$newWidth = imagesx($img);
 		$newHeight = $newWidth / 2;
 		
-		$newImgPng = imagecreatetruecolor($newWidth, $newHeight);
-		imagesavealpha($newImgPng, true);
-		$trans_colour = imagecolorallocatealpha($newImgPng, 255, 255, 255, 127);
-		imagefill($newImgPng, 0, 0, $trans_colour);
+		$newImgPng = createEmptyCanvas($newWidth, $newHeight);
 		
 		imagecopy($newImgPng, $img, 0, 0, 0, 0, $newWidth, $newHeight);
-		
 		imagedestroy($img);
 		
 		return $newImgPng;
@@ -162,99 +173,41 @@
 	 * with scrips using the old names.
 	 * 
 	 * Espects the English _GET name.
-	 * Returns the _GET value.
+	 * Returns the _GET value or the default value.
+	 * Return false if the _GET is not found.
 	 */
 	function grabGetValue($name) {
-		switch ($name) {
-			case 'user':
-				if(isset($_GET['user'])) {
-					return $_GET['user'];
-				} else if(isset($_GET['login'])) {
-					return $_GET['login'];
-				}
-				return 'char';
-			case 'vr':
-				if(isset($_GET['vr'])) {
-					return $_GET['vr'];
-				} else if(isset($_GET['a'])) {
-					return $_GET['a'];
-				}
-				return '-25';
-			case 'hr':
-				if(isset($_GET['hr'])) {
-					return $_GET['hr'];
-				} else if(isset($_GET['w'])) {
-					return $_GET['w'];
-				}
-				return '35';
-			case 'hrh':
-				if(isset($_GET['hrh'])) {
-					return $_GET['hrh'];
-				} else if(isset($_GET['wt'])) {
-					return $_GET['wt'];
-				}
-				return '0';
-			case 'vrll':
-				if(isset($_GET['vrll'])) {
-					return $_GET['vrll'];
-				} else if(isset($_GET['ajg'])) {
-					return $_GET['ajg'];
-				}
-				return '0';
-			case 'vrrl':
-				if(isset($_GET['vrrl'])) {
-					return $_GET['vrrl'];
-				} else if(isset($_GET['ajd'])) {
-					return $_GET['ajd'];
-				}
-				return '0';
-			case 'vrla':
-				if(isset($_GET['vrla'])) {
-					return $_GET['vrla'];
-				} else if(isset($_GET['abg'])) {
-					return $_GET['abg'];
-				}
-				return '0';
-			case 'vrra':
-				if(isset($_GET['vrra'])) {
-					return $_GET['vrra'];
-				} else if(isset($_GET['abd'])) {
-					return $_GET['abd'];
-				}
-				return '0';
-			case 'displayHair':
-				if(isset($_GET['displayHair'])) {
-					return $_GET['displayHair'];
-				} else if(isset($_GET['displayHairs'])) {
-					return $_GET['displayHairs'];
-				}
-				return 'true';
-			case 'headOnly':
-				if(isset($_GET['headOnly'])) {
-					return $_GET['headOnly'];
-				}
-				return 'false';
-			case 'format':
-				if(isset($_GET['format'])) {
-					return $_GET['format'];
-				}
-				return 'png';
-			case 'ratio':
-				if(isset($_GET['ratio'])) {
-					return $_GET['ratio'];
-				}
-				return '12';
-			case 'aa':
-				if(isset($_GET['aa'])) {
-					return $_GET['aa'];
-				}
-				return 'false';
-			default:
-				return null;
+		$parameters = array('user' => array('old' => 'login', 'default' => 'char'),
+							'vr' => array('old' => 'a', 'default' => '-25'),
+							'hr' => array('old' => 'w', 'default' => '35'),
+							'hrh' => array('old' => 'wt', 'default' => '0'),
+							'vrll' => array('old' => 'ajg', 'default' => '0'),
+							'vrrl' => array('old' => 'ajd', 'default' => '0'),
+							'vrla' => array('old' => 'abg', 'default' => '0'),
+							'vrra' => array('old' => 'abd', 'default' => '0'),
+							'displayHair' => array('old' => 'displayHairs', 'default' => 'true'),
+							'headOnly' => array('old' => 'headOnly', 'default' => 'false'),
+							'format' => array('old' => 'format', 'default' => 'png'),
+							'ratio' => array('old' => 'ratio', 'default' => '12'),
+							'aa' => array('old' => 'aa', 'default' => 'false'),
+							);
+		
+		if(array_key_exists($name, $parameters)) {
+			if(isset($_GET[$name])) {
+				return $_GET[$name];
+			} else if (isset($_GET[$parameters[$name]['old']])) {
+				return $_GET[$parameters[$name]['old']];
+			}
+			return $parameters[$name]['default'];
 		}
 		
+		return false;
 	}
 	
+	/* ============
+	 * Script Start
+	 * ============
+	 */
 	$times = array(
 		 array(
 			 'Start',
@@ -263,20 +216,18 @@
 	);
 	
 	$username = grabGetValue('user');
-	if ( trim( $username ) == '' ) {
-		$img_png = imageCreateFromPng( $fallback_img );
+	if (trim($username) == '') {
+		$img_png = imageCreateFromPng($fallback_img);
 	} else {
-		$img_png = imageCreateFromPng( 'http://s3.amazonaws.com/MinecraftSkins/' . $username . '.png' );
+		$img_png = imageCreateFromPng('http://s3.amazonaws.com/MinecraftSkins/' . $username . '.png');
 	}
 	
-	if ( !$img_png ) {
+	if (!$img_png) {
+		// Player skin does not exist
 		$img_png = imageCreateFromPng( $fallback_img );
 	}
 	
-	imageAlphaBlending( $img_png, true );
-	imageSaveAlpha( $img_png, true );
-	
-	if ( !( $width == $height * 2 ) || $height % 32 != 0 ) {
+	if (!($width == $height * 2) || $height % 32 != 0) {
 		// Bad ratio created
 		$img_png = imageCreateFromPng( $fallback_img );
 	}
@@ -288,53 +239,58 @@
 	// Convert the image to true color if not a true color image
 	$img_png = convertToTrueColor($img_png);
 	
-	$width  = imagesx( $img_png );
-	$height = imagesy( $img_png );
+	$width = imagesx($img_png);
+	$height = imagesy($img_png);
 	
-	$hd_ratio                     = $height / 32; // Set HD ratio to 2 if the skin is 128x64
-	$times[]                      = array(
+	$hd_ratio = $height / 32; // Set HD ratio to 2 if the skin is 128x64
+	
+	$times[] = array(
 		 'Download-Image',
 		microtime_float() 
 	);
 	
-	$vR                           = grabGetValue('vr');
-	$hR                           = grabGetValue('hr');
-	$head_only                    = ( grabGetValue('headOnly') == 'true' );
-	$display_hair                 = ( grabGetValue('displayHair') != 'false' );
-	$aa                   		  = ( grabGetValue('aa') == 'true' );
+	$vR = grabGetValue('vr');
+	$hR = grabGetValue('hr');
+	$head_only = ( grabGetValue('headOnly') == 'true' );
+	$display_hair = ( grabGetValue('displayHair') != 'false' );
+	$aa = ( grabGetValue('aa') == 'true' );
+	
 	// Rotation variables in radians (3D Rendering)
-	$alpha                        = deg2rad( $vR ); // Vertical rotation on the X axis.
-	$omega                        = deg2rad( $hR ); // Horizontal rotation on the Y axis.
+	$alpha = deg2rad( $vR ); // Vertical rotation on the X axis.
+	$omega = deg2rad( $hR ); // Horizontal rotation on the Y axis.
+	
 	// Cosine and Sine values
-	$cos_alpha                    = cos( $alpha );
-	$sin_alpha                    = sin( $alpha );
-	$cos_omega                    = cos( $omega );
-	$sin_omega                    = sin( $omega );
-	$members_angles               = array(); // Head, Helmet, Torso, Arms, Legs
-	$members_angles[ 'torso' ]    = array(
+	$cos_alpha = cos( $alpha );
+	$sin_alpha = sin( $alpha );
+	$cos_omega = cos( $omega );
+	$sin_omega = sin( $omega );
+	
+	$members_angles = array(); // Head, Helmet, Torso, Arms, Legs
+	$members_angles[ 'torso' ] = array(
 		 'cos_alpha' => cos( 0 ),
 		'sin_alpha' => sin( 0 ),
 		'cos_omega' => cos( 0 ),
 		'sin_omega' => sin( 0 ) 
 	);
 	
-	$alpha_head                   = 0;
-	$omega_head                   = deg2rad( grabGetValue('hrh') );
-	$members_angles[ 'head' ]     = array(
-		 'cos_alpha' => cos( $alpha_head ),
-		'sin_alpha' => sin( $alpha_head ),
-		'cos_omega' => cos( $omega_head ),
-		'sin_omega' => sin( $omega_head ) 
-	);
-	$members_angles[ 'helmet' ]   = array(
+	$alpha_head = 0;
+	$omega_head = deg2rad( grabGetValue('hrh') );
+	$members_angles[ 'head' ] = array(
 		 'cos_alpha' => cos( $alpha_head ),
 		'sin_alpha' => sin( $alpha_head ),
 		'cos_omega' => cos( $omega_head ),
 		'sin_omega' => sin( $omega_head ) 
 	);
 	
-	$alpha_right_arm              = deg2rad( grabGetValue('vrra') );
-	$omega_right_arm              = 0;
+	$members_angles[ 'helmet' ] = array(
+		 'cos_alpha' => cos( $alpha_head ),
+		'sin_alpha' => sin( $alpha_head ),
+		'cos_omega' => cos( $omega_head ),
+		'sin_omega' => sin( $omega_head ) 
+	);
+	
+	$alpha_right_arm = deg2rad( grabGetValue('vrra') );
+	$omega_right_arm = 0;
 	$members_angles[ 'rightArm' ] = array(
 		 'cos_alpha' => cos( $alpha_right_arm ),
 		'sin_alpha' => sin( $alpha_right_arm ),
@@ -342,17 +298,17 @@
 		'sin_omega' => sin( $omega_right_arm ) 
 	);
 	
-	$alpha_left_arm               = deg2rad( grabGetValue('vrla') );
-	$omega_left_arm               = 0;
-	$members_angles[ 'leftArm' ]  = array(
+	$alpha_left_arm = deg2rad( grabGetValue('vrla') );
+	$omega_left_arm = 0;
+	$members_angles[ 'leftArm' ] = array(
 		 'cos_alpha' => cos( $alpha_left_arm ),
 		'sin_alpha' => sin( $alpha_left_arm ),
 		'cos_omega' => cos( $omega_left_arm ),
 		'sin_omega' => sin( $omega_left_arm ) 
 	);
 	
-	$alpha_right_leg              = deg2rad( grabGetValue('vrrl') );
-	$omega_right_leg              = 0;
+	$alpha_right_leg = deg2rad( grabGetValue('vrrl') );
+	$omega_right_leg = 0;
 	$members_angles[ 'rightLeg' ] = array(
 		 'cos_alpha' => cos( $alpha_right_leg ),
 		'sin_alpha' => sin( $alpha_right_leg ),
@@ -360,30 +316,31 @@
 		'sin_omega' => sin( $omega_right_leg ) 
 	);
 	
-	$alpha_left_leg               = deg2rad( grabGetValue('vrll') );
-	$omega_left_leg               = 0;
-	$members_angles[ 'leftLeg' ]  = array(
+	$alpha_left_leg = deg2rad( grabGetValue('vrll') );
+	$omega_left_leg = 0;
+	$members_angles[ 'leftLeg' ] = array(
 		 'cos_alpha' => cos( $alpha_left_leg ),
 		'sin_alpha' => sin( $alpha_left_leg ),
 		'cos_omega' => cos( $omega_left_leg ),
 		'sin_omega' => sin( $omega_left_leg ) 
 	);
 	
-	$minX                         = 0;
-	$maxX                         = 0;
-	$minY                         = 0;
-	$maxY                         = 0;
-	$times[]                      = array(
+	$minX = 0;
+	$maxX = 0;
+	$minY = 0;
+	$maxY = 0;
+	
+	$times[] = array(
 		 'Angle-Calculations',
 		microtime_float() 
 	);
 	
-	$visible_faces_format         = array(
+	$visible_faces_format = array(
 		 'front' => array(),
 		'back' => array ()
 	);
 	
-	$visible_faces                = array(
+	$visible_faces = array(
 		 'head' => $visible_faces_format,
 		'torso' => $visible_faces_format,
 		'rightArm' => $visible_faces_format,
@@ -392,7 +349,7 @@
 		'leftLeg' => $visible_faces_format 
 	);
 	
-	$all_faces                    = array(
+	$all_faces = array(
 		 'back',
 		'right',
 		'top',
@@ -513,6 +470,7 @@
 		$v[ 'back' ]  = $cube_max_depth_faces[ 1 ];
 		$v[ 'front' ] = array_diff( $all_faces, $v[ 'back' ] );
 	}
+	
 	$cube_points   = array();
 	$cube_points[] = array(
 		 new Point( array(
@@ -610,6 +568,7 @@
 			'bottom' 
 		) 
 	); // 7
+	
 	unset( $cube_max_depth_faces );
 	foreach ( $cube_points as $cube_point ) {
 		$cube_point[ 0 ]->project();
@@ -619,14 +578,17 @@
 			$cube_max_depth_faces = $cube_point;
 		}
 	}
+	
 	$back_faces       = $cube_max_depth_faces[ 1 ];
 	$front_faces      = array_diff( $all_faces, $back_faces );
+	
 	$times[]          = array(
 		 'Determination-of-faces',
 		microtime_float() 
 	);
-	$depths_of_face   = array();
-	$polygons         = array();
+	
+	$depths_of_face = array();
+	$polygons = array();
 	$cube_faces_array = array(
 		 'front' => array(),
 		'back' => array(),
@@ -635,8 +597,9 @@
 		'right' => array(),
 		'left' => array ()
 	);
-	$polygons         = array(
-		 'helmet' => $cube_faces_array,
+	
+	$polygons = array(
+		'helmet' => $cube_faces_array,
 		'head' => $cube_faces_array,
 		'torso' => $cube_faces_array,
 		'rightArm' => $cube_faces_array,
@@ -644,6 +607,7 @@
 		'rightLeg' => $cube_faces_array,
 		'leftLeg' => $cube_faces_array 
 	);
+	
 	// HEAD
 	for ( $i = 0; $i < 9 * $hd_ratio; $i++ ) {
 		for ( $j = 0; $j < 9 * $hd_ratio; $j++ ) {
@@ -1375,24 +1339,28 @@
 			}
 		}
 	}
+	
 	// Pre-projection - Rotation of members if required.
 	$times[] = array(
 		 'Polygon-generation',
 		microtime_float() 
 	);
+	
 	foreach ( $polygons[ 'head' ] as $face ) {
 		foreach ( $face as $poly ) {
 			$poly->preProject( 4, 8, 2, $members_angles[ 'head' ][ 'cos_alpha' ], $members_angles[ 'head' ][ 'sin_alpha' ], $members_angles[ 'head' ][ 'cos_omega' ], $members_angles[ 'head' ][ 'sin_omega' ] );
 		}
 	}
-	if ( $display_hair ) {
+	
+	if ($display_hair) {
 		foreach ( $polygons[ 'helmet' ] as $face ) {
 			foreach ( $face as $poly ) {
 				$poly->preProject( 4, 8, 2, $members_angles[ 'head' ][ 'cos_alpha' ], $members_angles[ 'head' ][ 'sin_alpha' ], $members_angles[ 'head' ][ 'cos_omega' ], $members_angles[ 'head' ][ 'sin_omega' ] );
 			}
 		}
 	}
-	if ( !$head_only ) {
+	
+	if (!$head_only) {
 		foreach ( $polygons[ 'rightArm' ] as $face ) {
 			foreach ( $face as $poly ) {
 				$poly->preProject( -2, 8, 2, $members_angles[ 'rightArm' ][ 'cos_alpha' ], $members_angles[ 'rightArm' ][ 'sin_alpha' ], $members_angles[ 'rightArm' ][ 'cos_omega' ], $members_angles[ 'rightArm' ][ 'sin_omega' ] );
@@ -1414,11 +1382,13 @@
 			}
 		}
 	}
+	
 	// Rotation of the members.
 	$times[] = array(
 		 'Members-rotation',
 		microtime_float() 
 	);
+	
 	foreach ( $polygons as $piece ) {
 		foreach ( $piece as $face ) {
 			foreach ( $face as $poly ) {
@@ -1428,10 +1398,12 @@
 			}
 		}
 	}
+	
 	$times[] = array(
 		 'Projection-plan',
 		microtime_float() 
 	);
+	
 	$width   = $maxX - $minX;
 	$height  = $maxY - $minY;
 	$ratio   = intval( grabGetValue('ratio') );
@@ -1444,13 +1416,14 @@
 		$ratio = $ratio * 2;
 	}
 	
-	if ( $seconds_to_cache > 0 ) {
+	if ($seconds_to_cache > 0) {
 		$ts = gmdate( "D, d M Y H:i:s", time() + $seconds_to_cache ) . ' GMT';
 		header( 'Expires: ' . $ts );
 		header( 'Pragma: cache' );
 		header( 'Cache-Control: max-age=' . $seconds_to_cache );
 	}
-	if ( grabGetValue('format') == 'svg' ) {
+	
+	if (grabGetValue('format') == 'svg') {
 		header( 'Content-Type: image/svg+xml' );
 		echo '<?xml version="1.0" standalone="no"?>
 			<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
@@ -1464,169 +1437,75 @@
 		$realWidth = $srcWidth / 2;
 		$realHeight = $srcHeight / 2;
 		
-		$image = imagecreatetruecolor( $srcWidth, $srcHeight);
-		imagesavealpha( $image, true );
-		$trans_colour = imagecolorallocatealpha( $image, 0, 0, 0, 127 );
-		imagefill( $image, 0, 0, $trans_colour );
+		$image = createEmptyCanvas( $srcWidth, $srcHeight);
 	}
+	
 	$display_order = array();
 	if ( in_array( 'top', $front_faces ) ) {
 		if ( in_array( 'right', $front_faces ) ) {
-			$display_order[] = array(
-				 'leftLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $visible_faces[ 'leftLeg' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $visible_faces[ 'rightLeg' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'leftArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftArm' => $visible_faces[ 'leftArm' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'torso' => $back_faces 
-			);
-			$display_order[] = array(
-				 'torso' => $visible_faces[ 'torso' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'rightArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightArm' => $visible_faces[ 'rightArm' ][ 'front' ] 
-			);
+			$display_order[] = array('leftLeg' => $back_faces);
+			$display_order[] = array('leftLeg' => $visible_faces['leftLeg']['front']);
+			$display_order[] = array('rightLeg' => $back_faces);
+			$display_order[] = array('rightLeg' => $visible_faces['rightLeg']['front']);
+			$display_order[] = array('leftArm' => $back_faces);
+			$display_order[] = array('leftArm' => $visible_faces['leftArm']['front']);
+			$display_order[] = array('torso' => $back_faces);
+			$display_order[] = array('torso' => $visible_faces['torso']['front']);
+			$display_order[] = array('rightArm' => $back_faces);
+			$display_order[] = array('rightArm' => $visible_faces['rightArm']['front']);
 		} else {
-			$display_order[] = array(
-				 'rightLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $visible_faces[ 'rightLeg' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $visible_faces[ 'leftLeg' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'rightArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightArm' => $visible_faces[ 'rightArm' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'torso' => $back_faces 
-			);
-			$display_order[] = array(
-				 'torso' => $visible_faces[ 'torso' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'leftArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftArm' => $visible_faces[ 'leftArm' ][ 'front' ] 
-			);
+			$display_order[] = array('rightLeg' => $back_faces);
+			$display_order[] = array('rightLeg' => $visible_faces['rightLeg' ]['front']);
+			$display_order[] = array('leftLeg' => $back_faces);
+			$display_order[] = array('leftLeg' => $visible_faces['leftLeg']['front']);
+			$display_order[] = array('rightArm' => $back_faces);
+			$display_order[] = array('rightArm' => $visible_faces['rightArm']['front']);
+			$display_order[] = array('torso' => $back_faces);
+			$display_order[] = array('torso' => $visible_faces['torso']['front']);
+			$display_order[] = array('leftArm' => $back_faces);
+			$display_order[] = array('leftArm' => $visible_faces['leftArm']['front']);
 		}
-		$display_order[] = array(
-			 'helmet' => $back_faces 
-		);
-		$display_order[] = array(
-			 'head' => $back_faces 
-		);
-		$display_order[] = array(
-			 'head' => $visible_faces[ 'head' ][ 'front' ] 
-		);
-		$display_order[] = array(
-			 'helmet' => $visible_faces[ 'head' ][ 'front' ] 
-		);
+		
+		$display_order[] = array('helmet' => $back_faces);
+		$display_order[] = array('head' => $back_faces);
+		$display_order[] = array('head' => $visible_faces['head']['front']);
+		$display_order[] = array('helmet' => $visible_faces['head']['front']);
 	} else {
-		$display_order[] = array(
-			 'helmet' => $back_faces 
-		);
-		$display_order[] = array(
-			 'head' => $back_faces 
-		);
-		$display_order[] = array(
-			 'head' => $visible_faces[ 'head' ][ 'front' ] 
-		);
-		$display_order[] = array(
-			 'helmet' => $visible_faces[ 'head' ][ 'front' ] 
-		);
+		$display_order[] = array('helmet' => $back_faces);
+		$display_order[] = array('head' => $back_faces);
+		$display_order[] = array('head' => $visible_faces['head']['front']);
+		$display_order[] = array('helmet' => $visible_faces['head']['front']);
+		
 		if ( in_array( 'right', $front_faces ) ) {
-			$display_order[] = array(
-				 'leftArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftArm' => $visible_faces[ 'leftArm' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'torso' => $back_faces 
-			);
-			$display_order[] = array(
-				 'torso' => $visible_faces[ 'torso' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'rightArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightArm' => $visible_faces[ 'rightArm' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $visible_faces[ 'leftLeg' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $visible_faces[ 'rightLeg' ][ 'front' ] 
-			);
+			$display_order[] = array('leftArm' => $back_faces);
+			$display_order[] = array('leftArm' => $visible_faces['leftArm']['front']);
+			$display_order[] = array('torso' => $back_faces);
+			$display_order[] = array('torso' => $visible_faces['torso']['front']);
+			$display_order[] = array('rightArm' => $back_faces);
+			$display_order[] = array('rightArm' => $visible_faces['rightArm']['front']);
+			$display_order[] = array('leftLeg' => $back_faces);
+			$display_order[] = array('leftLeg' => $visible_faces['leftLeg' ]['front']);
+			$display_order[] = array('rightLeg' => $back_faces);
+			$display_order[] = array('rightLeg' => $visible_faces['rightLeg']['front']);
 		} else {
-			$display_order[] = array(
-				 'rightArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightArm' => $visible_faces[ 'rightArm' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'torso' => $back_faces 
-			);
-			$display_order[] = array(
-				 'torso' => $visible_faces[ 'torso' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'leftArm' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftArm' => $visible_faces[ 'leftArm' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'rightLeg' => $visible_faces[ 'rightLeg' ][ 'front' ] 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $back_faces 
-			);
-			$display_order[] = array(
-				 'leftLeg' => $visible_faces[ 'leftLeg' ][ 'front' ] 
-			);
+			$display_order[] = array('rightArm' => $back_faces);
+			$display_order[] = array('rightArm' => $visible_faces['rightArm']['front']);
+			$display_order[] = array('torso' => $back_faces);
+			$display_order[] = array('torso' => $visible_faces['torso']['front']);
+			$display_order[] = array('leftArm' => $back_faces);
+			$display_order[] = array('leftArm' => $visible_faces['leftArm']['front']);
+			$display_order[] = array('rightLeg' => $back_faces);
+			$display_order[] = array('rightLeg' => $visible_faces['rightLeg']['front']);
+			$display_order[] = array('leftLeg' => $back_faces);
+			$display_order[] = array('leftLeg' => $visible_faces['leftLeg']['front']);
 		}
 	}
+	
 	$times[] = array(
 		 'Calculated-display-faces',
 		microtime_float() 
 	);
+	
 	foreach ( $display_order as $pieces ) {
 		foreach ( $pieces as $piece => $faces ) {
 			foreach ( $faces as $face ) {
@@ -1639,10 +1518,12 @@
 			}
 		}
 	}
+	
 	$times[] = array(
 		 'Display-image',
 		microtime_float() 
 	);
+	
 	if ( grabGetValue('format') == 'svg' ) {
 		echo '</svg>' . "\n";
 		for ( $i = 1; $i < count( $times ); $i++ ) {
@@ -1654,10 +1535,7 @@
 		if($aa === true) {
 			// image normal size (sort of AA).
 			// resize the image down to it's normal size so it will be smoother
-			$destImage = imagecreatetruecolor($realWidth, $realHeight);
-			imagesavealpha( $destImage, true );
-			$trans_colour = imagecolorallocatealpha( $destImage, 0, 0, 0, 127 );
-			imagefill( $destImage, 0, 0, $trans_colour );
+			$destImage = createEmptyCanvas($realWidth, $realHeight);
 			
 			imagecopyresampled($destImage, $image, 0, 0, 0, 0, $realWidth, $realHeight, $srcWidth, $srcHeight);
 			$image = $destImage;
@@ -1684,14 +1562,17 @@
 		}
 		header( 'generation-time-' . count( $times ) . '-TOTAL: ' . ( $times[ count( $times ) - 1 ][ 1 ] - $times[ 0 ][ 1 ] ) * 1000 . 'ms' );
 	}
-	class Point
-	{
+	
+	/* Point Class
+	 *
+	 */
+	class Point {
 		private $_originCoord;
 		private $_destCoord = array();
 		private $_isProjected = false;
 		private $_isPreProjected = false;
-		function __construct( $originCoord )
-		{
+		
+		function __construct( $originCoord ) {
 			if ( is_array( $originCoord ) && count( $originCoord ) == 3 ) {
 				$this->_originCoord = array(
 					 'x' => ( isset( $originCoord[ 'x' ] ) ? $originCoord[ 'x' ] : 0 ),
@@ -1706,8 +1587,8 @@
 				);
 			}
 		}
-		function project()
-		{
+		
+		function project() {
 			global $cos_alpha, $sin_alpha, $cos_omega, $sin_omega;
 			global $minX, $maxX, $minY, $maxY;
 			// 1, 0, 1, 0
@@ -1723,8 +1604,8 @@
 			$minY                    = min( $minY, $this->_destCoord[ 'y' ] );
 			$maxY                    = max( $maxY, $this->_destCoord[ 'y' ] );
 		}
-		function preProject( $dx, $dy, $dz, $cos_alpha, $sin_alpha, $cos_omega, $sin_omega )
-		{
+		
+		function preProject( $dx, $dy, $dz, $cos_alpha, $sin_alpha, $cos_omega, $sin_omega ) {
 			if ( !$this->_isPreProjected ) {
 				$x                         = $this->_originCoord[ 'x' ] - $dx;
 				$y                         = $this->_originCoord[ 'y' ] - $dy;
@@ -1735,35 +1616,38 @@
 				$this->_isPreProjected     = true;
 			}
 		}
-		function getOriginCoord()
-		{
+		
+		function getOriginCoord() {
 			return $this->_originCoord;
 		}
-		function getDestCoord()
-		{
+		
+		function getDestCoord() {
 			return $this->_destCoord;
 		}
-		function getDepth()
-		{
+		
+		function getDepth() {
 			if ( !$this->_isProjected ) {
 				$this->project();
 			}
 			return $this->_destCoord[ 'z' ];
 		}
-		function isProjected()
-		{
+		
+		function isProjected() {
 			return $this->_isProjected;
 		}
 	}
-	class Polygon
-	{
+	
+	/* Polygon Class
+	 *
+	 */
+	class Polygon {
 		private $_dots;
 		private $_colour;
 		private $_isProjected = false;
 		private $_face = 'w';
 		private $_faceDepth = 0;
-		function __construct( $dots, $colour )
-		{
+		
+		function __construct( $dots, $colour ) {
 			$this->_dots   = $dots;
 			$this->_colour = $colour;
 			$coord_0       = $dots[ 0 ]->getOriginCoord();
@@ -1780,19 +1664,19 @@
 				$this->_faceDepth = $coord_0[ 'z' ];
 			}
 		}
-		function getFace()
-		{
+		
+		function getFace() {
 			return $this->_face;
 		}
-		function getFaceDepth()
-		{
+		
+		function getFaceDepth() {
 			if ( !$this->_isProjected ) {
 				$this->project();
 			}
 			return $this->_faceDepth;
 		}
-		function getSvgPolygon( $ratio )
-		{
+		
+		function getSvgPolygon( $ratio ) {
 			$points_2d = '';
 			$r         = ( $this->_colour >> 16 ) & 0xFF;
 			$g         = ( $this->_colour >> 8 ) & 0xFF;
@@ -1807,8 +1691,8 @@
 			$comment = '';
 			return $comment . '<polygon points="' . $points_2d . '" style="fill:rgba(' . $r . ',' . $g . ',' . $b . ',' . $vR . ')" />' . "\n";
 		}
-		function addPngPolygon( &$image, $minX, $minY, $ratio )
-		{
+		
+		function addPngPolygon( &$image, $minX, $minY, $ratio ) {
 			$points_2d = array();
 			$nb_points = 0;
 			$r         = ( $this->_colour >> 16 ) & 0xFF;
@@ -1838,12 +1722,12 @@
 				imagefilledpolygon( $image, $points_2d, $nb_points, $colour );
 			}
 		}
-		function isProjected()
-		{
+		
+		function isProjected() {
 			return $this->_isProjected;
 		}
-		function project()
-		{
+		
+		function project() {
 			foreach ( $this->_dots as &$dot ) {
 				if ( !$dot->isProjected() ) {
 					$dot->project();
@@ -1851,8 +1735,8 @@
 			}
 			$this->_isProjected = true;
 		}
-		function preProject( $dx, $dy, $dz, $cos_alpha, $sin_alpha, $cos_omega, $sin_omega )
-		{
+		
+		function preProject( $dx, $dy, $dz, $cos_alpha, $sin_alpha, $cos_omega, $sin_omega ) {
 			foreach ( $this->_dots as &$dot ) {
 				$dot->preProject( $dx, $dy, $dz, $cos_alpha, $sin_alpha, $cos_omega, $sin_omega );
 			}
