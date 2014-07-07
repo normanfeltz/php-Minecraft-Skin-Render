@@ -8,12 +8,12 @@ Project first developed by <a href="https://github.com/supermamie/php-Minecraft-
 My goal is to fix some issues and hopefully create full support for the 1.8 skins.
 
 ### Example of URL:
-The URL containing most of the options:
-`http://example.com/3d.php?vr=-25&hr=-25&hrh=10&vrla=5&vrra=-2&vrll=-20&vrrl=2&ratio=12&format=png&displayHair=true&headOnly=false&user=Notch`
+The URL containing most of the options:<br/>
+`http://example.com/3d.php?vr=-25&hr=-25&hrh=10&vrla=5&vrra=-2&vrll=-20&vrrl=2&ratio=12&format=png&displayHair=true&headOnly=false&user=Notch`<br/>
 Note: The old parameters by supermamie will still work.
 
-With less parameters:
-`http://example.com/3d.php?user=Notch&hrh=-20&aa=true`
+With less parameters:<br/>
+`http://example.com/3d.php?user=Notch&hrh=-20&aa=true`<br/>
 This example will only set the user to Notch, head rotation to -20 and AA (image smoothing) to true. You can add parameters by adding `&<parameter>=<value>` to the end of your URL.
 
 ### Parameters
