@@ -8,28 +8,32 @@ Project first developed by <a href="https://github.com/supermamie/php-Minecraft-
 My goal is to fix some issues and hopefully create full support for the 1.8 skins.
 
 ### Example of URL:
-`http://example.com/3d.php?vr=-25&hr=-25&hrh=0&vrla=0&vrra=0&vrll=0&vrrl=0&ratio=12&format=png&displayHair=true&headOnly=false&user=cajogos`
+The URL containing most of the options:
+`http://example.com/3d.php?vr=-25&hr=-25&hrh=10&vrla=5&vrra=-2&vrll=-20&vrrl=2&ratio=12&format=png&displayHair=true&headOnly=false&user=Notch`
 Note: The old parameters by supermamie will still work.
 
-### Required parameters
+With less parameters:
+`http://example.com/3d.php?user=Notch&hrh=-20&aa=true`
+This example will only set the user to Notch, head rotation to -20 and AA (image smoothing) to true. You can add parameters by adding `&<parameter>=<value>` to the end of your URL.
+
+### Parameters
 Supermamie's old parameters will still work.
 
-- `user` = Minecraft's username for the skin to be rendered.
-- `vr` = Vertical Rotation
-- `hr` = Horizontal Rotation
-- `hrh` = Horizontal Rotation Head
-- `vrll` = Vertical Rotation Left Leg
-- `vrrl` = Vertical Rotation Right Leg
-- `vrla` = Vertical Rotation Left Arm
-- `vrra` = Vertical Rotation Right Arm
-- `displayHair` = Either or not to display hairs. Set to "false" to NOT display hairs.
-- `headOnly` = Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair).
-- `format` = The format in which the image is to be rendered. PNG ("png") is used by default. Set to "svg" to use a vector version and "base64" for an encoded base64 string of the image.
-- `ratio` = The size of the "png" image. The default and minimum value is 2.
+Parameters are now optional, so you can now only add those you need.
 
-### Optional parameters
-These parameters can be added to the URL, but are not required.
-- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. "false" by default.
+- `user` = Minecraft's username for the skin to be rendered. `char by default`
+- `vr` = Vertical Rotation `-25 by default`
+- `hr` = Horizontal Rotation `35 by default`
+- `hrh` = Horizontal Rotation Head `0 by default`
+- `vrll` = Vertical Rotation Left Leg `0 by default`
+- `vrrl` = Vertical Rotation Right Leg `0 by default`
+- `vrla` = Vertical Rotation Left Arm `0 by default`
+- `vrra` = Vertical Rotation Right Arm `0 by default`
+- `displayHair` = Either or not to display hairs. Set to "false" to NOT display hairs. `true by default`
+- `headOnly` = Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair). `false by default`
+- `format` = The format in which the image is to be rendered. PNG ("png") is used by default. Set to "svg" to use a vector version and "base64" for an encoded base64 string of the png image. `png by default`
+- `ratio` = The size of the "png" image. The default and minimum value is 2. `12 by default`
+- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `false by default`
 
 ### Changes Made
 - Fixed dark blue skins;
@@ -38,5 +42,6 @@ These parameters can be added to the URL, but are not required.
 - Made the old parameters by supermamie work again;
 - Made 1.8 skins work (still render as the old skin type);
 - Added ability to output an encoded base64 string of the image;
-- Added optional AA (image smoothing) parameter.
+- Added optional AA (image smoothing) parameter;
+- Made all parameters optional;
 - Made Steve the fallback image.

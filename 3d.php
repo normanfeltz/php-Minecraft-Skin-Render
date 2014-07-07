@@ -3,7 +3,7 @@
 	 * The contents of this project were first developed by Pierre Gros on 17th April 2012.
 	 * It has once been modified by Carlos Ferreira (http://www.carlosferreira.me) on 31st May 2014.
 	 * Translations done by Carlos Ferreira.
-	 * Later adapted by Gijs "Gyzie" Oortgiese (http://www.gijsoortgiese.com/) on 6st of July 2014.
+	 * Later adapted by Gijs "Gyzie" Oortgiese (http://www.gijsoortgiese.com/). Started on the 6st of July 2014.
 	 * Fixing various issues.
 	 *
 	 **** GET Parameters ****
@@ -95,6 +95,12 @@
 		for ($iH = 0; $iH < 8; $iH++) {
 			for ($iV = 0; $iV < 8; $iV++) {
 				$pixelColor = imagecolorat($img, $iH, $iV);
+
+				$indexColor = imagecolorsforindex($img, $pixelColor);
+				if($indexColor['alpha'] > 120) {
+					// the image contains transparancy, noting to do
+					return $img;
+				}
 				
 				if($tempValue === null) {
 					$tempValue = $pixelColor;
@@ -163,54 +169,81 @@
 			case 'user':
 				if(isset($_GET['user'])) {
 					return $_GET['user'];
+				} else if(isset($_GET['login'])) {
+					return $_GET['login'];
 				}
-				return $_GET['login'];
+				return 'char';
 			case 'vr':
 				if(isset($_GET['vr'])) {
 					return $_GET['vr'];
+				} else if(isset($_GET['a'])) {
+					return $_GET['a'];
 				}
-				return $_GET['a'];
+				return '-25';
 			case 'hr':
 				if(isset($_GET['hr'])) {
 					return $_GET['hr'];
+				} else if(isset($_GET['w'])) {
+					return $_GET['w'];
 				}
-				return $_GET['w'];
+				return '35';
 			case 'hrh':
 				if(isset($_GET['hrh'])) {
 					return $_GET['hrh'];
+				} else if(isset($_GET['wt'])) {
+					return $_GET['wt'];
 				}
-				return $_GET['wt'];
+				return '0';
 			case 'vrll':
 				if(isset($_GET['vrll'])) {
 					return $_GET['vrll'];
+				} else if(isset($_GET['ajg'])) {
+					return $_GET['ajg'];
 				}
-				return $_GET['ajg'];
+				return '0';
 			case 'vrrl':
 				if(isset($_GET['vrrl'])) {
 					return $_GET['vrrl'];
+				} else if(isset($_GET['ajd'])) {
+					return $_GET['ajd'];
 				}
-				return $_GET['ajd'];
+				return '0';
 			case 'vrla':
 				if(isset($_GET['vrla'])) {
 					return $_GET['vrla'];
+				} else if(isset($_GET['abg'])) {
+					return $_GET['abg'];
 				}
-				return $_GET['abg'];
+				return '0';
 			case 'vrra':
 				if(isset($_GET['vrra'])) {
 					return $_GET['vrra'];
+				} else if(isset($_GET['abd'])) {
+					return $_GET['abd'];
 				}
-				return $_GET['abd'];
+				return '0';
 			case 'displayHair':
 				if(isset($_GET['displayHair'])) {
 					return $_GET['displayHair'];
+				} else if(isset($_GET['displayHairs'])) {
+					return $_GET['displayHairs'];
 				}
-				return $_GET['displayHairs'];
+				return 'true';
 			case 'headOnly':
-				return $_GET['headOnly'];
+				if(isset($_GET['headOnly'])) {
+					return $_GET['headOnly'];
+				}
+				return 'false';
 			case 'format':
-				return $_GET['format'];
+				if(isset($_GET['format'])) {
+					return $_GET['format'];
+				}
+				return 'png';
 			case 'ratio':
-				return $_GET['ratio'];
+				if(isset($_GET['ratio'])) {
+					return $_GET['ratio'];
+				}
+				return '12';
 			case 'aa':
 				if(isset($_GET['aa'])) {
 					return $_GET['aa'];
