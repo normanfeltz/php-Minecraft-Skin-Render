@@ -36,7 +36,7 @@ Parameters are now optional (exept for `user`), so you can now only add those yo
 - `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `false by default`
 
 ### Using it as class
-You can use the script as a direct browseroutput (via the URL method), but also as a class for your scripts:
+You can use the script for direct browser output (via the URL method as mentioned above), but also as a class for your scripts. Example:
 
 ```
 include_once realpath(dirname(__FILE__) . '/3d.php');
@@ -66,6 +66,6 @@ echo $svg; // SVG String
 - Added ability to output an encoded base64 string of the image;
 - Added optional AA (image smoothing) parameter;
 - Reformatted the entire code;
-- Made it possible to get an return instead of only a browser output;
+- Made it possible to use the script as class;
 - Made all parameters optional;
 - Made Steve the fallback image.
