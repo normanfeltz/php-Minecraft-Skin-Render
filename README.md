@@ -33,7 +33,7 @@ Parameters are now optional (exept for `user`), so you can now only add those yo
 - `headOnly` = Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair). `false by default`
 - `format` = The format in which the image is to be rendered. PNG ("png") is used by default. Set to "svg" to use a vector version and "base64" for an encoded base64 string of the png image. `png by default`
 - `ratio` = The size of the "png" image. The default and minimum value is 2. `12 by default`
-- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `true by default`
+- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `false by default`
 - `layers` = Apply extra skin layers. `true by default`
 
 ### Using it as class

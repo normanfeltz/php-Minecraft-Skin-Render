@@ -69,7 +69,7 @@
 							'headOnly' => array('old' => 'headOnly', 'default' => 'false'),
 							'format' => array('old' => 'format', 'default' => 'png'),
 							'ratio' => array('old' => 'ratio', 'default' => '12'),
-							'aa' => array('old' => 'aa', 'default' => 'true'),
+							'aa' => array('old' => 'aa', 'default' => 'false'),
 							'layers' => array('old' => 'layers', 'default' => 'true')
 							);
 		
