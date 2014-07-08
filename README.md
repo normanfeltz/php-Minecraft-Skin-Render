@@ -5,7 +5,7 @@ Render a 3D view of a Minecraft skin using PHP.
 
 Project first developed by <a href="https://github.com/supermamie/php-Minecraft-3D-skin" target="_blank">supermamie</a>. Later transalated to English by <a href="https://github.com/cajogos/php-Minecraft-3D-Skin-Renderer" target="_blank">cajogos</a>.
 
-My goal is to fix some issues and hopefully create full support for the 1.8 skins.
+My goal is to fix some issues and hopefully create full support for the 1.8 skins (1.8 support is now partly done).
 
 ### Example of URL:
 The URL containing most of the options:<br/>
@@ -61,8 +61,10 @@ echo $svg; // SVG String
 - Fixed dark blue skins;
 - Fixed not working SVG images (Bug in cajogos fork);
 - Fixed non-transparent PNG images rendering incorrect (Fix is a bit experimental);
+- Fixed incorrect rendering texture parts;
 - Made the old parameters by supermamie work again;
-- Made 1.8 skins work (still render as the old skin type);
+- Made 1.8 skins work (still render without extra body parts);
+- Made 1.8 skins base layers render;
 - Added ability to output an encoded base64 string of the image;
 - Added optional AA (image smoothing) parameter;
 - Reformatted the entire code;

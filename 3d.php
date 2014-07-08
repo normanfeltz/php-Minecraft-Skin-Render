@@ -111,6 +111,7 @@
 		private $fallback_img = 'char.png'; // Use a not found skin whenever something goes wrong.
 		private $playerName = null;
 		private $playerSkin = false;
+		private $isNewSkinType = false;
 		
 		private $hd_ratio = 1;
 		
@@ -206,14 +207,18 @@
 			$this->times = array(array('Start', $this->microtime_float()));
 			$this->getPlayerSkin(); // Downlaod and check the player skin
 				$this->times[] = array('Download-Image', $this->microtime_float());
+			
+			$this->hd_ratio = imagesx($this->playerSkin) / 64; // Set HD ratio to 2 if the skin is 128x64. Check via width, not height because of new skin type.
+			
+			// check if new skin type. If both sides are equaly long: new skin type
+			if(imagesx($this->playerSkin) == imagesy($this->playerSkin)) {
+				$this->isNewSkinType = true;
+			}
+			
 			$this->makeBackgroundTransparent(); // make background transparent (fix for weird rendering skins)
 				$this->times[] = array('Made-Background-Transparent', $this->microtime_float());
-			$this->cropToOldSkinFormat(); // crop the image if it's a 1.8 skin.
-				$this->times[] = array('Crop-new-skin-to-old-skin-if-needed', $this->microtime_float());
 			$this->playerSkin = img::convertToTrueColor($this->playerSkin); // Convert the image to true color if not a true color image
 				$this->times[] = array('Convert-to-true-color-if-needed', $this->microtime_float());
-			
-			$this->hd_ratio = imagesy($this->playerSkin) / 32; // Set HD ratio to 2 if the skin is 128x64
 			
 			$this->calculateAngles();
 				$this->times[] = array('Angle-Calculations', $this->microtime_float());
@@ -719,7 +724,7 @@
 						$volume_points[ $i + 1 ][ 8 * $hd_ratio ][ $k ],
 						$volume_points[ $i + 1 ][ 8 * $hd_ratio ][ $k + 1 ],
 						$volume_points[ $i ][ 8 * $hd_ratio ][ $k + 1 ] 
-					), imagecolorat( $img_png, 16 * $hd_ratio + $i, ( 8 * $hd_ratio - 1 ) - ( $k + 2 * $hd_ratio ) ) );
+					), imagecolorat( $img_png, 16 * $hd_ratio + $i, 2 * $hd_ratio + $k ) );
 				}
 			}
 			if ($this->display_hair) {
@@ -824,7 +829,7 @@
 							$volume_points[ $i + 1 ][ 8 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 8 * $hd_ratio ][ $k + 1 ],
 							$volume_points[ $i ][ 8 * $hd_ratio ][ $k + 1 ] 
-						), imagecolorat( $img_png, 32 * $hd_ratio + 16 * $hd_ratio + $i, ( 8 * $hd_ratio - 1 ) - ( $k + 2 * $hd_ratio ) ) );
+						), imagecolorat( $img_png, 32 * $hd_ratio + 16 * $hd_ratio + $i, 2 * $hd_ratio + $k ) );
 					}
 				}
 			}
@@ -1034,7 +1039,7 @@
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k + 1 ],
 							$volume_points[ $i ][ 12 * $hd_ratio ][ $k + 1 ] 
-						), imagecolorat( $img_png, 48 * $hd_ratio + $i, ( 20 * $hd_ratio - 1 ) - $k ) );
+						), imagecolorat( $img_png, 48 * $hd_ratio + $i, 16 * $hd_ratio + $k ) );
 					}
 				}
 				// LEFT ARM
@@ -1095,50 +1100,74 @@
 				}
 				for ( $i = 0; $i < 4 * $hd_ratio; $i++ ) {
 					for ( $j = 0; $j < 12 * $hd_ratio; $j++ ) {
+						if($this->isNewSkinType) {
+							$color1 = imagecolorat( $img_png, 47 * $hd_ratio - $i, 52 * $hd_ratio + $j ); // from right to left
+							$color2 = imagecolorat( $img_png, 36 * $hd_ratio + $i , 52 * $hd_ratio + $j ); // from left to right
+						} else {
+							$color1 = imagecolorat( $img_png, ( 56 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j );
+							$color2 = imagecolorat( $img_png, 44 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j );
+						}
+						
 						$this->polygons[ 'leftArm' ][ 'back' ][]  = new Polygon( array(
 							 $volume_points[ $i ][ $j ][ 0 ],
 							$volume_points[ $i + 1 ][ $j ][ 0 ],
 							$volume_points[ $i + 1 ][ $j + 1 ][ 0 ],
 							$volume_points[ $i ][ $j + 1 ][ 0 ] 
-						), imagecolorat( $img_png, ( 56 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j ) );
+						), $color1 );
 						$this->polygons[ 'leftArm' ][ 'front' ][] = new Polygon( array(
 							 $volume_points[ $i ][ $j ][ 4 * $hd_ratio ],
 							$volume_points[ $i + 1 ][ $j ][ 4 * $hd_ratio ],
 							$volume_points[ $i + 1 ][ $j + 1 ][ 4 * $hd_ratio ],
 							$volume_points[ $i ][ $j + 1 ][ 4 * $hd_ratio ] 
-						), imagecolorat( $img_png, 44 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j ) );
+						), $color2 );
 					}
 				}
 				for ( $j = 0; $j < 12 * $hd_ratio; $j++ ) {
 					for ( $k = 0; $k < 4 * $hd_ratio; $k++ ) {
+						if($this->isNewSkinType) {
+							$color1 = imagecolorat( $img_png, 32 * $hd_ratio + $k, 52 * $hd_ratio + $j ); // from left to right
+							$color2 = imagecolorat( $img_png, 43 * $hd_ratio - $k, 52 * $hd_ratio + $j ); // from right to left
+						} else {
+							$color1 = imagecolorat( $img_png, 40 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j );
+							$color2 = imagecolorat( $img_png, ( 52 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j );
+						}
+						
 						$this->polygons[ 'leftArm' ][ 'right' ][] = new Polygon( array(
 							 $volume_points[ 0 ][ $j ][ $k ],
 							$volume_points[ 0 ][ $j ][ $k + 1 ],
 							$volume_points[ 0 ][ $j + 1 ][ $k + 1 ],
 							$volume_points[ 0 ][ $j + 1 ][ $k ] 
-						), imagecolorat( $img_png, 40 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j ) );
+						), $color1 );
 						$this->polygons[ 'leftArm' ][ 'left' ][]  = new Polygon( array(
 							 $volume_points[ 4 * $hd_ratio ][ $j ][ $k ],
 							$volume_points[ 4 * $hd_ratio ][ $j ][ $k + 1 ],
 							$volume_points[ 4 * $hd_ratio ][ $j + 1 ][ $k + 1 ],
 							$volume_points[ 4 * $hd_ratio ][ $j + 1 ][ $k ] 
-						), imagecolorat( $img_png, ( 52 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j ) );
+						), $color2 );
 					}
 				}
 				for ( $i = 0; $i < 4 * $hd_ratio; $i++ ) {
 					for ( $k = 0; $k < 4 * $hd_ratio; $k++ ) {
+						if($this->isNewSkinType) {
+							$color1 = imagecolorat( $img_png, 36 * $hd_ratio + $i, 48 * $hd_ratio + $k ); // from left to right
+							$color2 = imagecolorat( $img_png, 40 * $hd_ratio + $i, 48 * $hd_ratio + $k ); // from left to right
+						} else {
+							$color1 = imagecolorat( $img_png, 44 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 16 * $hd_ratio + $k );
+							$color2 = imagecolorat( $img_png, 48 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), ( 20 * $hd_ratio - 1 ) - $k );
+						}
+						
 						$this->polygons[ 'leftArm' ][ 'top' ][]    = new Polygon( array(
 							 $volume_points[ $i ][ 0 ][ $k ],
 							$volume_points[ $i + 1 ][ 0 ][ $k ],
 							$volume_points[ $i + 1 ][ 0 ][ $k + 1 ],
 							$volume_points[ $i ][ 0 ][ $k + 1 ] 
-						), imagecolorat( $img_png, 44 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 16 * $hd_ratio + $k ) );
+						), $color1 );
 						$this->polygons[ 'leftArm' ][ 'bottom' ][] = new Polygon( array(
 							 $volume_points[ $i ][ 12 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k + 1 ],
 							$volume_points[ $i ][ 12 * $hd_ratio ][ $k + 1 ] 
-						), imagecolorat( $img_png, 48 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), ( 20 * $hd_ratio - 1 ) - $k ) );
+						), $color2 );
 					}
 				}
 				// RIGHT LEG
@@ -1242,7 +1271,7 @@
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k + 1 ],
 							$volume_points[ $i ][ 12 * $hd_ratio ][ $k + 1 ] 
-						), imagecolorat( $img_png, 8 * $hd_ratio + $i, ( 20 * $hd_ratio - 1 ) - $k ) );
+						), imagecolorat( $img_png, 8 * $hd_ratio + $i, 16 * $hd_ratio + $k ) );
 					}
 				}
 				// LEFT LEG
@@ -1303,50 +1332,74 @@
 				}
 				for ( $i = 0; $i < 4 * $hd_ratio; $i++ ) {
 					for ( $j = 0; $j < 12 * $hd_ratio; $j++ ) {
+						if($this->isNewSkinType) {
+							$color1 = imagecolorat( $img_png, 31 * $hd_ratio - $i, 52 * $hd_ratio + $j ); // from right to left
+							$color2 = imagecolorat( $img_png, 20 * $hd_ratio + $i , 52 * $hd_ratio + $j ); // from left to right
+						} else {
+							$color1 = imagecolorat( $img_png, ( 16 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j );
+							$color2 = imagecolorat( $img_png, 4 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j );
+						}
+						
 						$this->polygons[ 'leftLeg' ][ 'back' ][]  = new Polygon( array(
 							 $volume_points[ $i ][ $j ][ 0 ],
 							$volume_points[ $i + 1 ][ $j ][ 0 ],
 							$volume_points[ $i + 1 ][ $j + 1 ][ 0 ],
 							$volume_points[ $i ][ $j + 1 ][ 0 ] 
-						), imagecolorat( $img_png, ( 16 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j ) );
+						), $color1 );
 						$this->polygons[ 'leftLeg' ][ 'front' ][] = new Polygon( array(
 							 $volume_points[ $i ][ $j ][ 4 * $hd_ratio ],
 							$volume_points[ $i + 1 ][ $j ][ 4 * $hd_ratio ],
 							$volume_points[ $i + 1 ][ $j + 1 ][ 4 * $hd_ratio ],
 							$volume_points[ $i ][ $j + 1 ][ 4 * $hd_ratio ] 
-						), imagecolorat( $img_png, 4 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 20 * $hd_ratio + $j ) );
+						), $color2 );
 					}
 				}
 				for ( $j = 0; $j < 12 * $hd_ratio; $j++ ) {
 					for ( $k = 0; $k < 4 * $hd_ratio; $k++ ) {
+						if($this->isNewSkinType) {
+							$color1 = imagecolorat( $img_png, 16 * $hd_ratio + $k , 52 * $hd_ratio + $j ); // from left to right
+							$color2 = imagecolorat( $img_png, 27 * $hd_ratio - $k , 52 * $hd_ratio + $j ); // from right to left
+						} else {
+							$color1 = imagecolorat( $img_png, 0 + ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j );
+							$color2 = imagecolorat( $img_png, ( 12 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j );
+						}
+						
 						$this->polygons[ 'leftLeg' ][ 'right' ][] = new Polygon( array(
 							 $volume_points[ 0 ][ $j ][ $k ],
 							$volume_points[ 0 ][ $j ][ $k + 1 ],
 							$volume_points[ 0 ][ $j + 1 ][ $k + 1 ],
 							$volume_points[ 0 ][ $j + 1 ][ $k ] 
-						), imagecolorat( $img_png, 0 + ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j ) );
+						), $color1 );
 						$this->polygons[ 'leftLeg' ][ 'left' ][]  = new Polygon( array(
 							 $volume_points[ 4 * $hd_ratio ][ $j ][ $k ],
 							$volume_points[ 4 * $hd_ratio ][ $j ][ $k + 1 ],
 							$volume_points[ 4 * $hd_ratio ][ $j + 1 ][ $k + 1 ],
 							$volume_points[ 4 * $hd_ratio ][ $j + 1 ][ $k ] 
-						), imagecolorat( $img_png, ( 12 * $hd_ratio - 1 ) - ( ( 4 * $hd_ratio - 1 ) - $k ), 20 * $hd_ratio + $j ) );
+						), $color2 );
 					}
 				}
 				for ( $i = 0; $i < 4 * $hd_ratio; $i++ ) {
 					for ( $k = 0; $k < 4 * $hd_ratio; $k++ ) {
+						if($this->isNewSkinType) {
+							$color1 = imagecolorat( $img_png, 20 * $hd_ratio + $i , 48 * $hd_ratio + $k ); // from left to right
+							$color2 = imagecolorat( $img_png, 24 * $hd_ratio + $i , 48 * $hd_ratio + $k ); // from left to right
+						} else {
+							$color1 = imagecolorat( $img_png, 4 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 16 * $hd_ratio + $k );
+							$color2 = imagecolorat( $img_png, 8 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), ( 20 * $hd_ratio - 1 ) - $k );
+						}
+						
 						$this->polygons[ 'leftLeg' ][ 'top' ][]    = new Polygon( array(
 							 $volume_points[ $i ][ 0 ][ $k ],
 							$volume_points[ $i + 1 ][ 0 ][ $k ],
 							$volume_points[ $i + 1 ][ 0 ][ $k + 1 ],
 							$volume_points[ $i ][ 0 ][ $k + 1 ] 
-						), imagecolorat( $img_png, 4 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), 16 * $hd_ratio + $k ) );
+						), $color1 );
 						$this->polygons[ 'leftLeg' ][ 'bottom' ][] = new Polygon( array(
 							 $volume_points[ $i ][ 12 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k ],
 							$volume_points[ $i + 1 ][ 12 * $hd_ratio ][ $k + 1 ],
 							$volume_points[ $i ][ 12 * $hd_ratio ][ $k + 1 ] 
-						), imagecolorat( $img_png, 8 * $hd_ratio + ( ( 4 * $hd_ratio - 1 ) - $i ), ( 20 * $hd_ratio - 1 ) - $k ) );
+						), $color2 );
 					}
 				}
 			}			
