@@ -28,8 +28,8 @@
 	 */
 	 
 	error_reporting(E_ERROR);
-	error_reporting(E_ALL);
-	ini_set("display_errors", 1);
+	/*error_reporting(E_ALL);
+	ini_set("display_errors", 1);*/
 	
 	/* Start Global variabal
 	 * These variabals are shared over multiple classes
@@ -110,7 +110,7 @@
 	class render3DPlayer {
 		private $fallback_img = 'char.png'; // Use a not found skin whenever something goes wrong.
 		private $playerName = null;
-		private $playerSkin = null;
+		private $playerSkin = false;
 		
 		private $hd_ratio = 1;
 		
@@ -187,7 +187,7 @@
 				$this->playerSkin = imageCreateFromPng($this->fallback_img);
 				return false;
 			}
-			
+		
 			if (imagesy($this->playerSkin) % 32 != 0) {
 				// Bad ratio created
 				$this->playerSkin = imageCreateFromPng($this->fallback_img);
