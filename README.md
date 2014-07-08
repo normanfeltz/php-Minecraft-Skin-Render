@@ -19,9 +19,9 @@ This example will only set the user to Notch, head rotation to -20 and AA (image
 ### Parameters
 Supermamie's old parameters will still work.
 
-Parameters are now optional, so you can now only add those you need.
+Parameters are now optional (exept for `user`), so you can now only add those you need.
 
-- `user` = Minecraft's username for the skin to be rendered. `char by default`
+- `user` = Minecraft's username for the skin to be rendered. Required
 - `vr` = Vertical Rotation `-25 by default`
 - `hr` = Horizontal Rotation `35 by default`
 - `hrh` = Horizontal Rotation Head `0 by default`
@@ -35,6 +35,28 @@ Parameters are now optional, so you can now only add those you need.
 - `ratio` = The size of the "png" image. The default and minimum value is 2. `12 by default`
 - `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `false by default`
 
+### Using it as class
+You can use the script as a direct browseroutput (via the URL method), but also as a class for your scripts:
+
+```
+include_once realpath(dirname(__FILE__) . '/3d.php');
+	
+$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'png', '12', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa)
+$png = $player->get3DRender();
+echo "<br/>====<br/>PNG:<br/>====<br/>";
+echo $png; // TrueColor image
+
+$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'base64', '12', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa)
+$base64 = $player->get3DRender();
+echo "<br/>========<br/>Base 64:<br/>========<br/>";
+echo $base64; // Base64 string
+
+$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'svg', '12', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa)
+$svg = $player->get3DRender();
+echo "<br/>====<br/>SVG:<br/>====<br/>";
+echo $svg; // SVG String
+```
+
 ### Changes Made
 - Fixed dark blue skins;
 - Fixed not working SVG images (Bug in cajogos fork);
@@ -43,5 +65,7 @@ Parameters are now optional, so you can now only add those you need.
 - Made 1.8 skins work (still render as the old skin type);
 - Added ability to output an encoded base64 string of the image;
 - Added optional AA (image smoothing) parameter;
+- Reformatted the entire code;
+- Made it possible to get an return instead of only a browser output;
 - Made all parameters optional;
 - Made Steve the fallback image.
