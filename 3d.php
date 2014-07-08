@@ -69,7 +69,8 @@
 							'headOnly' => array('old' => 'headOnly', 'default' => 'false'),
 							'format' => array('old' => 'format', 'default' => 'png'),
 							'ratio' => array('old' => 'ratio', 'default' => '12'),
-							'aa' => array('old' => 'aa', 'default' => 'false'),
+							'aa' => array('old' => 'aa', 'default' => 'true'),
+							'layers' => array('old' => 'layers', 'default' => 'true')
 							);
 		
 		if(array_key_exists($name, $parameters)) {
@@ -99,7 +100,8 @@
 										grabGetValue('headOnly'),
 										grabGetValue('format'),
 										grabGetValue('ratio'),
-										grabGetValue('aa')
+										grabGetValue('aa'),
+										grabGetValue('layers')
 								);
 		$player->get3DRender('browser');
 	}
@@ -127,6 +129,7 @@
 		private $format = null;
 		private $ratio = null;
 		private $aa = null;
+		private $layers = null;
 		
 		// Rotation variables in radians (3D Rendering)
 		private $alpha = null; // Vertical rotation on the X axis.
@@ -147,7 +150,7 @@
 		
 		private $times = null;
 		
-		public function __construct($user, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa) {
+		public function __construct($user, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers) {
 			$this->playerName = $user;
 			$this->vR = $vr;
 			$this->hR = $hr;
@@ -161,6 +164,7 @@
 			$this->format = $format;
 			$this->ratio = $ratio;
 			$this->aa = ($aa == 'true');
+			$this->layers = ($layers == 'true');
 		}
 		
 		/* Function can be used for tracking script duration
@@ -219,6 +223,12 @@
 				$this->times[] = array('Made-Background-Transparent', $this->microtime_float());
 			$this->playerSkin = img::convertToTrueColor($this->playerSkin); // Convert the image to true color if not a true color image
 				$this->times[] = array('Convert-to-true-color-if-needed', $this->microtime_float());
+			
+			// Quick fix for 1.8:
+			// Copy the extra layers ontop of the base layers
+			if($this->layers) {
+				$this->fixNewSkinTypeLayers();
+			}
 			
 			$this->calculateAngles();
 				$this->times[] = array('Angle-Calculations', $this->microtime_float());
@@ -359,6 +369,22 @@
 			imagecopy($newImgPng, $this->playerSkin, 0, 0, 0, 0, $newWidth, $newHeight);
 			
 			$this->playerSkin = $newImgPng;
+		}
+		
+		/* Function copys the extra layers of a 1.8 skin
+		 * onto the base layers so that it will still show. QUICK FIX, NEEDS BETTER FIX
+		 * 
+		 * Espects an image.
+		 * Returns a croped image.
+		 */
+		private function fixNewSkinTypeLayers() {
+			if(!$this->isNewSkinType) {
+				return;
+			}
+			
+			imagecopy($this->playerSkin, $this->playerSkin, 0, 16, 0, 32, 56, 16); // RL2, BODY2, RA2
+			imagecopy($this->playerSkin, $this->playerSkin, 16, 48, 0, 48, 16, 16); // LL2
+			imagecopy($this->playerSkin, $this->playerSkin, 32, 48, 48, 48, 16, 16); // LA2
 		}
 		
 		/* Function Calculates the angels

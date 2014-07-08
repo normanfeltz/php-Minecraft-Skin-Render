@@ -33,7 +33,8 @@ Parameters are now optional (exept for `user`), so you can now only add those yo
 - `headOnly` = Either or not to display the ONLY the head. Set to "true" to display ONLY the head (and the hair, based on displayHair). `false by default`
 - `format` = The format in which the image is to be rendered. PNG ("png") is used by default. Set to "svg" to use a vector version and "base64" for an encoded base64 string of the png image. `png by default`
 - `ratio` = The size of the "png" image. The default and minimum value is 2. `12 by default`
-- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `false by default`
+- `aa` = Anti-aliasing (Not real AA, fake AA). When set to "true" the image will be smoother. `true by default`
+- `layers` = Apply extra skin layers. `true by default`
 
 ### Using it as class
 You can use the script for direct browser output (via the URL method as mentioned above), but also as a class for your scripts. Example:
@@ -41,17 +42,17 @@ You can use the script for direct browser output (via the URL method as mentione
 ```
 include_once realpath(dirname(__FILE__) . '/3d.php');
 	
-$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'png', '12', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa)
+$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'png', '12', 'true', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa, layers)
 $png = $player->get3DRender();
 echo "<br/>====<br/>PNG:<br/>====<br/>";
 echo $png; // TrueColor image
 
-$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'base64', '12', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa)
+$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'base64', '12', 'true', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa, layers)
 $base64 = $player->get3DRender();
 echo "<br/>========<br/>Base 64:<br/>========<br/>";
 echo $base64; // Base64 string
 
-$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'svg', '12', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa)
+$player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'svg', '12', 'true', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa, layers)
 $svg = $player->get3DRender();
 echo "<br/>====<br/>SVG:<br/>====<br/>";
 echo $svg; // SVG String
@@ -63,8 +64,9 @@ echo $svg; // SVG String
 - Fixed non-transparent PNG images rendering incorrect (Fix is a bit experimental);
 - Fixed incorrect rendering texture parts;
 - Made the old parameters by supermamie work again;
-- Made 1.8 skins work (still render without extra body parts);
+- Made 1.8 skins work;
 - Made 1.8 skins base layers render;
+- Added QUICK fix for 1.8 extra skin layers;
 - Added ability to output an encoded base64 string of the image;
 - Added optional AA (image smoothing) parameter;
 - Reformatted the entire code;
