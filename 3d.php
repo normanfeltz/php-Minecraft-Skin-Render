@@ -313,7 +313,7 @@
 			
 			imagesavealpha($this->playerSkin, false);
 			
-			if(needRemove) {
+			if($needRemove) {
 				// the entire block is one solid color. Use this color to clear the background.
 				$r = ($tempValue >> 16) & 0xFF;
 				$g = ($tempValue >> 8) & 0xFF;
