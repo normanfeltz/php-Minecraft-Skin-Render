@@ -184,7 +184,7 @@
 				$this->playerSkin = imageCreateFromPng($this->fallback_img);
 				return false;
 			} else {
-				$this->playerSkin = @imageCreateFromPng('http://s3.amazonaws.com/MinecraftSkins/' . $this->playerName . '.png');
+				$this->playerSkin = imageCreateFromPng('http://s3.amazonaws.com/MinecraftSkins/' . $this->playerName . '.png');
 			}
 			
 			if (!$this->playerSkin) {
@@ -219,10 +219,10 @@
 				$this->isNewSkinType = true;
 			}
 			
-			$this->makeBackgroundTransparent(); // make background transparent (fix for weird rendering skins)
-				$this->times[] = array('Made-Background-Transparent', $this->microtime_float());
 			$this->playerSkin = img::convertToTrueColor($this->playerSkin); // Convert the image to true color if not a true color image
 				$this->times[] = array('Convert-to-true-color-if-needed', $this->microtime_float());
+			$this->makeBackgroundTransparent(); // make background transparent (fix for weird rendering skins)
+				$this->times[] = array('Made-Background-Transparent', $this->microtime_float());
 			
 			// Quick fix for 1.8:
 			// Copy the extra layers ontop of the base layers
@@ -285,6 +285,7 @@
 		private function makeBackgroundTransparent() {
 			// check if the corner box is one solid color
 			$tempValue = null;
+			$needRemove = true;
 			
 			for ($iH = 0; $iH < 8; $iH++) {
 				for ($iV = 0; $iV < 8; $iV++) {
@@ -293,40 +294,44 @@
 					$indexColor = imagecolorsforindex($this->playerSkin, $pixelColor);
 					if($indexColor['alpha'] > 120) {
 						// the image contains transparancy, noting to do
-						return;
+						$needRemove = false;
 					}
 					
 					if($tempValue === null) {
 						$tempValue = $pixelColor;
 					} else if ($tempValue != $pixelColor){
 						// Cannot determine a background color, file is probably fine
-						return;
+						$needRemove = false;
 					}
 				}
 			}
 			
-			// the entire block is one solid color. Use this color to clear the background.
-			$r = ($tempValue >> 16) & 0xFF;
-			$g = ($tempValue >> 8) & 0xFF;
-			$b = $tempValue & 0xFF;
-			
-				
-			//imagealphablending($dst, true);
-			imagesavealpha($this->playerSkin, false);
-			$transparant = imagecolorallocate($this->playerSkin, $r, $g, $b);
-			imagecolortransparent($this->playerSkin, $transparant);
-			
 			$imgX = imagesx($this->playerSkin);
 			$imgY = imagesy($this->playerSkin);
 			
-			$dst = imagecreatetruecolor($imgX, $imgY);
-			imagesavealpha($dst, true);
-			$trans_colour = imagecolorallocatealpha($dst, $r, $g, $b, 127);
-			imagefill($dst, 0, 0, $trans_colour);
+			$dst = img::createEmptyCanvas($imgX, $imgY);
+			
+			imagesavealpha($this->playerSkin, false);
+			
+			if(needRemove) {
+				// the entire block is one solid color. Use this color to clear the background.
+				$r = ($tempValue >> 16) & 0xFF;
+				$g = ($tempValue >> 8) & 0xFF;
+				$b = $tempValue & 0xFF;
+				
+					
+				//imagealphablending($dst, true);
+				$transparant = imagecolorallocate($this->playerSkin, $r, $g, $b);
+				imagecolortransparent($this->playerSkin, $transparant);
+				
+				// create fill
+				$color = imagecolorallocate($dst, $r, $g, $b);
+			} else {
+				// create fill
+				$color = imagecolorallocate($dst, 0, 0, 0);
+			}
 			
 			// fill the areas that should not be transparant		
-			// create fill
-			$color = imagecolorallocate($dst, $r, $g, $b);
 			$positionMultiply = $imgX / 64;
 			
 			// head
