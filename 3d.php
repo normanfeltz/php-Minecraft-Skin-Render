@@ -184,7 +184,7 @@
 				$this->playerSkin = imageCreateFromPng($this->fallback_img);
 				return false;
 			} else {
-				$this->playerSkin = @imageCreateFromPng('http://s3.amazonaws.com/MinecraftSkins/' . $this->playerName . '.png');
+				$this->playerSkin = @imageCreateFromPng('http://skins.minecraft.net/MinecraftSkins/' . $this->playerName . '.png');
 			}
 			
 			if (!$this->playerSkin) {
