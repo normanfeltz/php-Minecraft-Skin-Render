@@ -69,6 +69,7 @@ echo $svg; // SVG String
 - Added QUICK fix for 1.8 extra skin layers;
 - Added ability to output an encoded base64 string of the image;
 - Added optional AA (image smoothing) parameter;
+- Added UUID support. (Mojang does not want too many UUID requests so it might fail when you use it a lot);
 - Reformatted the entire code;
 - Made it possible to use the script as class;
 - Made all parameters optional;
