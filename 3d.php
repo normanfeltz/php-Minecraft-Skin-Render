@@ -180,7 +180,14 @@
 		 * Return true or false
 		 */
 		private function isUUID($candidate) {
-			return preg_match('/^[0-9A-Za-z]{8}(-[0-9A-Za-z]{4}){3}-[0-9A-Za-z]{12}$/', $candidate);
+			if (is_string($candidate)) {
+				// Still needs a better UUID check system
+				$trimmed = str_replace('-', '', $candidate);
+				if (strlen($trimmed) === 32){
+					return $trimmed;
+				}
+			}
+			return false;
 		}
 		
 		/* Function gets the player skin URL via the Mojang service by UUID
@@ -188,9 +195,9 @@
 		 * Espects an UUID.
 		 * Returns player skin texure link, false on failure
 		 */
+		
 		private function getSkinURLViaUUIDViaMojang($UUID) {
-			$convertedUUID = str_replace('-', '', $UUID);
-			$mojangServiceContent = file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/' . $convertedUUID);
+			$mojangServiceContent = file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/' . $UUID);
 			$contentArray = json_decode($mojangServiceContent, true);
 			
 			if(!is_array($contentArray)) {
@@ -224,14 +231,25 @@
 		 * Espects an UUID or a name
 		 * returns a player skin link
 		 */
+		
 		private function getSkinURL() {
-			if($this->isUUID($this->playerName)) {
-				$result = $this->getSkinURLViaUUIDViaMojang($this->playerName);
-				
+			$isUUID = $this->isUUID($this->playerName);
+			if($isUUID !== false) {
+				$result = $this->getSkinURLViaUUIDViaMojang($isUUID);
 				return $result;
 			}
-			
-			return 'http://skins.minecraft.net/MinecraftSkins/' . $this->playerName . '.png';
+			else{
+				$mojangProfileContent = file_get_contents('https://api.mojang.com/users/profiles/minecraft/' . $this->playerName . '?at=' . time());
+				$profileContentArray = json_decode($mojangProfileContent, true);
+				if(is_array($profileContentArray)) {
+					if(!array_key_exists("id", $profileContentArray)) {
+						return false;
+					}
+				}
+				$result = $this->getSkinURLViaUUIDViaMojang($profileContentArray["id"]);
+				return $result;
+			}
+			return false;
 		}
 		
 		/* Function grabs the player skin from the Mojang server and checks it.
