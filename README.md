@@ -1,6 +1,10 @@
 php Minecraft 3D Skin Renderer
 =====================
 
+***This fork by Rodney. I've submitted a pull request back to Gyzie - if this is accepted then this fork will become redundant.***
+
+*Readme from Gyzie follows (with an edit by Rodney)
+
 Render a 3D view of a Minecraft skin using PHP.
 
 Project first developed by <a href="https://github.com/supermamie/php-Minecraft-3D-skin" target="_blank">supermamie</a>. Later transalated to English by <a href="https://github.com/cajogos/php-Minecraft-3D-Skin-Renderer" target="_blank">cajogos</a>.
