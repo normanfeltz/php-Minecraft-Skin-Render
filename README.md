@@ -39,7 +39,7 @@ Parameters are now optional (exept for `user`), so you can now only add those yo
 ### Using it as class
 You can use the script for direct browser output (via the URL method as mentioned above), but also as a class for your scripts. Example:
 
-```
+```php
 include_once realpath(dirname(__FILE__) . '/3d.php');
 	
 $player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'png', '12', 'true', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa, layers)
@@ -56,6 +56,13 @@ $player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2',
 $svg = $player->get3DRender();
 echo "<br/>====<br/>SVG:<br/>====<br/>";
 echo $svg; // SVG String
+
+// As above (svg example) but with a locally provided file
+$player = new render3DPlayer('', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'svg', '12', 'true', 'true', 'someskinfile.png');
+$svg = $player->get3DRender();
+echo "<br/>====<br/>SVG:<br/>====<br/>";
+echo $svg; // SVG String
+
 ```
 
 ### Changes Made
