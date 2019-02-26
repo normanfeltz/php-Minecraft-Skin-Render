@@ -1,6 +1,10 @@
 php Minecraft 3D Skin Renderer
 =====================
 
+***This fork by Rodney. I've submitted a pull request back to Gyzie - if this is accepted then this fork will become redundant.***
+
+*Readme from Gyzie follows (with an edit by Rodney)*
+
 Render a 3D view of a Minecraft skin using PHP.
 
 Project first developed by <a href="https://github.com/supermamie/php-Minecraft-3D-skin" target="_blank">supermamie</a>. Later transalated to English by <a href="https://github.com/cajogos/php-Minecraft-3D-Skin-Renderer" target="_blank">cajogos</a>.
@@ -39,7 +43,7 @@ Parameters are now optional (exept for `user`), so you can now only add those yo
 ### Using it as class
 You can use the script for direct browser output (via the URL method as mentioned above), but also as a class for your scripts. Example:
 
-```
+```php
 include_once realpath(dirname(__FILE__) . '/3d.php');
 	
 $player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'png', '12', 'true', 'true'); //render3DPlayer(user, vr, hr, hrh, vrll, vrrl, vrla, vrra, displayHair, headOnly, format, ratio, aa, layers)
@@ -56,6 +60,13 @@ $player = new render3DPlayer('Notch', '-25', '-25', '10', '5', '-2', '-20', '2',
 $svg = $player->get3DRender();
 echo "<br/>====<br/>SVG:<br/>====<br/>";
 echo $svg; // SVG String
+
+// As above (svg example) but with a locally provided file
+$player = new render3DPlayer('', '-25', '-25', '10', '5', '-2', '-20', '2', 'true', 'false', 'svg', '12', 'true', 'true', 'someskinfile.png');
+$svg = $player->get3DRender();
+echo "<br/>====<br/>SVG:<br/>====<br/>";
+echo $svg; // SVG String
+
 ```
 
 ### Changes Made

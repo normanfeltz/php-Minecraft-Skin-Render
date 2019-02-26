@@ -26,11 +26,14 @@
 	 * 
 	 * aa - Image smooting, false by default.
 	 */
-	 
-	error_reporting(E_ERROR);
-	/*error_reporting(E_ALL);
-	ini_set("display_errors", 1);*/
 	
+if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
+	// Don't adjust the error reporting if we are an include file
+	error_reporting(E_ERROR);
+	//error_reporting(E_ALL);
+	//ini_set("display_errors", 1); // TODO not here - this is set in index.php
+}
+
 	/* Start Global variabal
 	 * These variabals are shared over multiple classes
 	 */
@@ -85,8 +88,8 @@
 		return false;
 	}
 	
-	// Check if the player name value has been set. If not. Do nothing.
-	if(grabGetValue('user') !== false) {
+	// Check if the player name value has been set, and that we are not running as an included/required file. else do nothing.
+	if(( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) && grabGetValue('user') !== false) {
 		// There is a player name so they want an image output via url
 		$player = new render3DPlayer(	grabGetValue('user'),
 										grabGetValue('vr'),
@@ -111,6 +114,7 @@
 	 */
 	class render3DPlayer {
 		private $fallback_img = 'char.png'; // Use a not found skin whenever something goes wrong.
+		private $localSkinFile = null;
 		private $playerName = null;
 		private $playerSkin = false;
 		private $isNewSkinType = false;
@@ -150,7 +154,7 @@
 		
 		private $times = null;
 		
-		public function __construct($user, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers) {
+		public function __construct($user, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers, $localFile = null) {
 			$this->playerName = $user;
 			$this->vR = $vr;
 			$this->hR = $hr;
@@ -165,6 +169,7 @@
 			$this->ratio = $ratio;
 			$this->aa = ($aa == 'true');
 			$this->layers = ($layers == 'true');
+			$this->localSkinFile = $localFile;
 		}
 		
 		/* Function can be used for tracking script duration
@@ -257,7 +262,11 @@
 		 * Returns true on success, false on failure.
 		 */
 		private function getPlayerSkin() {
-			if (trim($this->playerName) == '') {
+			
+			// If a local file has been provided, use this instead of downloading one
+			if ($this->localSkinFile != null) {
+				$this->playerSkin = @imageCreateFromPng($this->localSkinFile);
+			} elseif (trim($this->playerName) == '') {
 				$this->playerSkin = imageCreateFromPng($this->fallback_img);
 				return false;
 			} else {
