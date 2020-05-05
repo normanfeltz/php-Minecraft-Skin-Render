@@ -26,14 +26,11 @@
 	 * 
 	 * aa - Image smooting, false by default.
 	 */
-	
-if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
-	// Don't adjust the error reporting if we are an include file
+	 
 	error_reporting(E_ERROR);
-	//error_reporting(E_ALL);
-	//ini_set("display_errors", 1); // TODO not here - this is set in index.php
-}
-
+	/*error_reporting(E_ALL);
+	ini_set("display_errors", 1);*/
+	
 	/* Start Global variabal
 	 * These variabals are shared over multiple classes
 	 */
@@ -61,6 +58,7 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 	 */
 	function grabGetValue($name) {
 		$parameters = array('user' => array('old' => 'login', 'default' => false),
+							'cosmetic' => array('old' => 'cosmetic', 'default' => false),
 							'vr' => array('old' => 'a', 'default' => '-25'),
 							'hr' => array('old' => 'w', 'default' => '35'),
 							'hrh' => array('old' => 'wt', 'default' => '0'),
@@ -88,10 +86,11 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 		return false;
 	}
 	
-	// Check if the player name value has been set, and that we are not running as an included/required file. else do nothing.
-	if(( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) && grabGetValue('user') !== false) {
+	// Check if the player name value has been set. If not. Do nothing.
+	if(grabGetValue('user') !== false) {
 		// There is a player name so they want an image output via url
 		$player = new render3DPlayer(	grabGetValue('user'),
+										grabGetValue('cosmetic'),
 										grabGetValue('vr'),
 										grabGetValue('hr'),
 										grabGetValue('hrh'),
@@ -114,7 +113,7 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 	 */
 	class render3DPlayer {
 		private $fallback_img = 'char.png'; // Use a not found skin whenever something goes wrong.
-		private $localSkinFile = null;
+		private $playerCosmetic = null;
 		private $playerName = null;
 		private $playerSkin = false;
 		private $isNewSkinType = false;
@@ -154,8 +153,9 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 		
 		private $times = null;
 		
-		public function __construct($user, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers, $localFile = null) {
+		public function __construct($user, $cosmetic, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers) {
 			$this->playerName = $user;
+			$this->playerCosmetic = $cosmetic;
 			$this->vR = $vr;
 			$this->hR = $hr;
 			$this->hrh = $hrh;
@@ -169,7 +169,6 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 			$this->ratio = $ratio;
 			$this->aa = ($aa == 'true');
 			$this->layers = ($layers == 'true');
-			$this->localSkinFile = $localFile;
 		}
 		
 		/* Function can be used for tracking script duration
@@ -185,14 +184,7 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 		 * Return true or false
 		 */
 		private function isUUID($candidate) {
-			if (is_string($candidate)) {
-				// Still needs a better UUID check system
-				$trimmed = str_replace('-', '', $candidate);
-				if (strlen($trimmed) === 32){
-					return $trimmed;
-				}
-			}
-			return false;
+			return preg_match('/^[0-9A-Za-z]{8}(-[0-9A-Za-z]{4}){3}-[0-9A-Za-z]{12}$/', $candidate);
 		}
 		
 		/* Function gets the player skin URL via the Mojang service by UUID
@@ -200,9 +192,9 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 		 * Espects an UUID.
 		 * Returns player skin texure link, false on failure
 		 */
-		
 		private function getSkinURLViaUUIDViaMojang($UUID) {
-			$mojangServiceContent = file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/' . $UUID);
+			$convertedUUID = str_replace('-', '', $UUID);
+			$mojangServiceContent = file_get_contents('https://sessionserver.mojang.com/session/minecraft/profile/' . $convertedUUID);
 			$contentArray = json_decode($mojangServiceContent, true);
 			
 			if(!is_array($contentArray)) {
@@ -236,25 +228,18 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 		 * Espects an UUID or a name
 		 * returns a player skin link
 		 */
-		
 		private function getSkinURL() {
-			$isUUID = $this->isUUID($this->playerName);
-			if($isUUID !== false) {
-				$result = $this->getSkinURLViaUUIDViaMojang($isUUID);
+			if($this->isUUID($this->playerName)) {
+				$result = $this->getSkinURLViaUUIDViaMojang($this->playerName);
+				
 				return $result;
 			}
-			else{
-				$mojangProfileContent = file_get_contents('https://api.mojang.com/users/profiles/minecraft/' . $this->playerName . '?at=' . time());
-				$profileContentArray = json_decode($mojangProfileContent, true);
-				if(is_array($profileContentArray)) {
-					if(!array_key_exists("id", $profileContentArray)) {
-						return false;
-					}
-				}
-				$result = $this->getSkinURLViaUUIDViaMojang($profileContentArray["id"]);
-				return $result;
-			}
-			return false;
+			
+			return 'http://skins.minecraft.net/MinecraftSkins/' . $this->playerName . '.png';
+		}
+		
+		private function applyCosmetic() {
+			
 		}
 		
 		/* Function grabs the player skin from the Mojang server and checks it.
@@ -262,17 +247,25 @@ if( basename(__FILE__) == basename($_SERVER["SCRIPT_FILENAME"]) ) {
 		 * Returns true on success, false on failure.
 		 */
 		private function getPlayerSkin() {
-			
-			// If a local file has been provided, use this instead of downloading one
-			if ($this->localSkinFile != null) {
-				$this->playerSkin = @imageCreateFromPng($this->localSkinFile);
-			} elseif (trim($this->playerName) == '') {
+			if (trim($this->playerName) == '') { //no Username
 				$this->playerSkin = imageCreateFromPng($this->fallback_img);
 				return false;
 			} else {
 				$skinURL = $this->getSkinURL();
 				if($skinURL !== false) {
-					$this->playerSkin = @imageCreateFromPng($skinURL);
+					
+					if ($cosmetic !== false) { //apply cosmetic
+						$skin = imagecreatefrompng($skinURL);
+						$cosmetic = imagecreatefrompng('./cosmetics/' . $this->playerCosmetic . '.png');
+						imagealphablending($skin, true);
+						imagesavealpha($skin, true);
+						imagecopy($skin, $cosmetic, 0, 0, 0, 0, 100, 100);
+
+						$this->playerSkin = $skin;
+					} else {
+						$this->playerSkin = @imageCreateFromPng($skinURL);
+					}
+				
 				}
 				// If failed to get skin URL via UUID: Did you tried it multiple times? Because Mojang does not accept too many requests!
 			}
