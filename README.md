@@ -1,10 +1,3 @@
-Render a 3d view of a Minecraft skin using PHP and adding cosmetic overlays (such as sunglasses). To add a cosmetic, create a "cosmetics" folder and put the skin that you want to use as an overlay in that directory.
-
-Example use: Add a transparent skin with sunglasses to the "cosmetics" folder and use the "cosmetic=sunglasses" parameter to apply the sunglasses as a overlay to your skin.
-
-forked from https://github.com/Gyzie/php-Minecraft-3D-Skin-Renderer
-
-
 php Minecraft 3D Skin Renderer
 =====================
 
