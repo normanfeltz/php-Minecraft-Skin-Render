@@ -231,19 +231,22 @@
 		private function getSkinURL() {
 			if($this->isUUID($this->playerName)) {
 				$result = $this->getSkinURLViaUUIDViaMojang($this->playerName);
+
+			} else {
+				$uuidJson = file_get_contents('https://api.mojang.com/users/profiles/minecraft/' . $this->playerName);
+				$uuid = json_decode($uuidJson);
 				
-				return $result;
+				$result = $this->getSkinURLViaUUIDViaMojang($uuid->id);
+				//$result = $this->getSkinURLViaUUIDViaMojang('0af13c4b-b536-4d71-b945-868c527a450f');
 			}
-			
-			return 'http://skins.minecraft.net/MinecraftSkins/' . $this->playerName . '.png';
+			return $result;
 		}
 		
-		private function applyCosmetic() {
-			
-		}
 		
 		/* Function grabs the player skin from the Mojang server and checks it.
 		 * 
+		 * Also adds a cosmetic to the skin if cosmetic parameter is set
+		 *
 		 * Returns true on success, false on failure.
 		 */
 		private function getPlayerSkin() {
