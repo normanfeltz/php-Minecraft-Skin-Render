@@ -233,11 +233,10 @@
 				$result = $this->getSkinURLViaUUIDViaMojang($this->playerName);
 
 			} else {
-				$uuidJson = file_get_contents('https://api.mojang.com/users/profiles/minecraft/' . $this->playerName);
+				$uuidJson = file_get_contents('https://api.mojang.com/users/profiles/minecraft/' . $this->playerName . '?at=' . time());
 				$uuid = json_decode($uuidJson);
 				
 				$result = $this->getSkinURLViaUUIDViaMojang($uuid->id);
-				//$result = $this->getSkinURLViaUUIDViaMojang('0af13c4b-b536-4d71-b945-868c527a450f');
 			}
 			return $result;
 		}
