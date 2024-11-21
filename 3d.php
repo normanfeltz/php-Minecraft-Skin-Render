@@ -273,7 +273,7 @@ class render3DPlayer
             $skinURL = $this->getSkinURL();
             if ($skinURL !== false) {
 
-                if ($cosmetic !== false) { //apply cosmetic
+                if ($this->playerCosmetic !== false) { //apply cosmetic
                     $skin = imagecreatefrompng($skinURL);
                     $cosmetic = imagecreatefrompng('./cosmetics/' . $this->playerCosmetic . '.png');
                     imagealphablending($skin, true);
