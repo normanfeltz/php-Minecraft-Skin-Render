@@ -271,11 +271,13 @@ class render3DPlayer
             return false;
         } else {
             $skinURL = $this->getSkinURL();
+
             if ($skinURL !== false) {
 
                 if ($this->playerCosmetic !== false) { //apply cosmetic
                     $skin = imagecreatefrompng($skinURL);
                     $cosmetic = imagecreatefrompng('./cosmetics/' . $this->playerCosmetic . '.png');
+
                     imagealphablending($skin, true);
                     imagesavealpha($skin, true);
                     imagecopy($skin, $cosmetic, 0, 0, 0, 0, 100, 100);
@@ -352,10 +354,10 @@ class render3DPlayer
         }
 
         for ($i = 1; $i < count($this->times); $i++) {
-            header('generation-time-' . $i . '-' . $this->times[$i][0] . ': ' . ($this->times[$i][1] - $this->times[$i - 1][1]) * 1000 . 'ms');
+            header('generation-time-' . sprintf("%02d", $i) . '-' . $this->times[$i][0] . ': ' . ($this->times[$i][1] - $this->times[$i - 1][1]) * 1000 . 'ms');
         }
 
-        header('generation-time-' . count($this->times) . '-TOTAL: ' . ($this->times[count($this->times) - 1][1] - $this->times[0][1]) * 1000 . 'ms');
+        header('generation-time-' . sprintf("%02d", count($this->times)) . '-TOTAL: ' . ($this->times[count($this->times) - 1][1] - $this->times[0][1]) * 1000 . 'ms');
 
         switch ($this->format) {
             case 'svg':
