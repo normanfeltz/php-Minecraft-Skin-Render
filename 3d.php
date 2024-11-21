@@ -362,7 +362,9 @@ class render3DPlayer
         switch ($this->format) {
             case 'svg':
                 header('Content-Type: image/svg+xml');
-                echo '< ?xml version="1.0" encoding="UTF-8"? >' . $result . "\n";
+
+                // Fix VS Code color syntaxe fail
+                echo  urldecode('%3C%3F') . 'xml version="1.0" encoding="UTF-8"' . urldecode('%3F%3E') . $result . "\n";
 
                 for ($i = 1; $i < count($this->times); $i++) {
                     echo '<!-- ' . ($this->times[$i][1] - $this->times[$i - 1][1]) * 1000 . 'ms : ' . $this->times[$i][0] . ' -->' . "\n";
@@ -634,6 +636,7 @@ class render3DPlayer
         $this->setCubePoints();
 
         unset($cube_max_depth_faces);
+
         foreach ($this->cube_points as $cube_point) {
             $cube_point[0]->project();
 
@@ -654,6 +657,8 @@ class render3DPlayer
     private function setCubePoints()
     {
         $this->cube_points = array();
+
+        // 0
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 0,
@@ -665,8 +670,9 @@ class render3DPlayer
                 'right',
                 'top'
             )
-        ); // 0
+        );
 
+        // 1
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 0,
@@ -678,8 +684,9 @@ class render3DPlayer
                 'right',
                 'top'
             )
-        ); // 1
+        );
 
+        // 2
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 0,
@@ -691,8 +698,9 @@ class render3DPlayer
                 'right',
                 'bottom'
             )
-        ); // 2
+        );
 
+        // 3
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 0,
@@ -704,8 +712,9 @@ class render3DPlayer
                 'right',
                 'bottom'
             )
-        ); // 3
+        );
 
+        // 4
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 1,
@@ -717,8 +726,9 @@ class render3DPlayer
                 'left',
                 'top'
             )
-        ); // 4
+        );
 
+        // 5
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 1,
@@ -730,8 +740,9 @@ class render3DPlayer
                 'left',
                 'top'
             )
-        ); // 5
+        );
 
+        // 6
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 1,
@@ -743,8 +754,9 @@ class render3DPlayer
                 'left',
                 'bottom'
             )
-        ); // 6
+        );
 
+        // 7
         $this->cube_points[] = array(
             new Point(array(
                 'x' => 1,
@@ -756,7 +768,7 @@ class render3DPlayer
                 'left',
                 'bottom'
             )
-        ); // 7
+        );
     }
 
     /* Function generates polygons
@@ -853,6 +865,7 @@ class render3DPlayer
                     $volume_points[$i + 1][$j + 1][-2 * $hd_ratio],
                     $volume_points[$i][$j + 1][-2 * $hd_ratio]
                 ), imagecolorat($img_png, (32 * $hd_ratio - 1) - $i, 8 * $hd_ratio + $j));
+
                 $this->polygons['head']['front'][] = new Polygon(array(
                     $volume_points[$i][$j][6 * $hd_ratio],
                     $volume_points[$i + 1][$j][6 * $hd_ratio],
@@ -870,6 +883,7 @@ class render3DPlayer
                     $volume_points[0][$j + 1][$k + 1],
                     $volume_points[0][$j + 1][$k]
                 ), imagecolorat($img_png, $k + 2 * $hd_ratio, 8 * $hd_ratio + $j));
+
                 $this->polygons['head']['left'][]  = new Polygon(array(
                     $volume_points[8 * $hd_ratio][$j][$k],
                     $volume_points[8 * $hd_ratio][$j][$k + 1],
@@ -887,6 +901,7 @@ class render3DPlayer
                     $volume_points[$i + 1][0][$k + 1],
                     $volume_points[$i][0][$k + 1]
                 ), imagecolorat($img_png, 8 * $hd_ratio + $i, $k + 2 * $hd_ratio));
+
                 $this->polygons['head']['bottom'][] = new Polygon(array(
                     $volume_points[$i][8 * $hd_ratio][$k],
                     $volume_points[$i + 1][8 * $hd_ratio][$k],
@@ -909,6 +924,7 @@ class render3DPlayer
                             'z' => -2.5 * $hd_ratio
                         ));
                     }
+
                     if (!isset($volume_points[$i][$j][6 * $hd_ratio])) {
                         $volume_points[$i][$j][6 * $hd_ratio] = new Point(array(
                             'x' => $i * 9 / 8 - 0.5 * $hd_ratio,
@@ -928,6 +944,7 @@ class render3DPlayer
                             'z' => $k * 9 / 8 - 0.5 * $hd_ratio
                         ));
                     }
+
                     if (!isset($volume_points[8 * $hd_ratio][$j][$k])) {
                         $volume_points[8 * $hd_ratio][$j][$k] = new Point(array(
                             'x' => 8.5 * $hd_ratio,
@@ -947,6 +964,7 @@ class render3DPlayer
                             'z' => $k * 9 / 8 - 0.5 * $hd_ratio
                         ));
                     }
+
                     if (!isset($volume_points[$i][8 * $hd_ratio][$k])) {
                         $volume_points[$i][8 * $hd_ratio][$k] = new Point(array(
                             'x' => $i * 9 / 8 - 0.5 * $hd_ratio,
@@ -965,6 +983,7 @@ class render3DPlayer
                         $volume_points[$i + 1][$j + 1][-2 * $hd_ratio],
                         $volume_points[$i][$j + 1][-2 * $hd_ratio]
                     ), imagecolorat($img_png, 32 * $hd_ratio + (32 * $hd_ratio - 1) - $i, 8 * $hd_ratio + $j));
+
                     $this->polygons['helmet']['front'][] = new Polygon(array(
                         $volume_points[$i][$j][6 * $hd_ratio],
                         $volume_points[$i + 1][$j][6 * $hd_ratio],
@@ -982,6 +1001,7 @@ class render3DPlayer
                         $volume_points[0][$j + 1][$k + 1],
                         $volume_points[0][$j + 1][$k]
                     ), imagecolorat($img_png, 32 * $hd_ratio + $k + 2 * $hd_ratio, 8 * $hd_ratio + $j));
+
                     $this->polygons['helmet']['left'][]  = new Polygon(array(
                         $volume_points[8 * $hd_ratio][$j][$k],
                         $volume_points[8 * $hd_ratio][$j][$k + 1],
@@ -999,6 +1019,7 @@ class render3DPlayer
                         $volume_points[$i + 1][0][$k + 1],
                         $volume_points[$i][0][$k + 1]
                     ), imagecolorat($img_png, 32 * $hd_ratio + 8 * $hd_ratio + $i, $k + 2 * $hd_ratio));
+
                     $this->polygons['helmet']['bottom'][] = new Polygon(array(
                         $volume_points[$i][8 * $hd_ratio][$k],
                         $volume_points[$i + 1][8 * $hd_ratio][$k],
@@ -1022,6 +1043,7 @@ class render3DPlayer
                             'z' => 0
                         ));
                     }
+
                     if (!isset($volume_points[$i][$j][4 * $hd_ratio])) {
                         $volume_points[$i][$j][4 * $hd_ratio] = new Point(array(
                             'x' => $i,
@@ -1041,6 +1063,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[8 * $hd_ratio][$j][$k])) {
                         $volume_points[8 * $hd_ratio][$j][$k] = new Point(array(
                             'x' => 8 * $hd_ratio,
@@ -1060,6 +1083,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[$i][12 * $hd_ratio][$k])) {
                         $volume_points[$i][12 * $hd_ratio][$k] = new Point(array(
                             'x' => $i,
@@ -1078,6 +1102,7 @@ class render3DPlayer
                         $volume_points[$i + 1][$j + 1][0],
                         $volume_points[$i][$j + 1][0]
                     ), imagecolorat($img_png, (40 * $hd_ratio - 1) - $i, 20 * $hd_ratio + $j));
+
                     $this->polygons['torso']['front'][] = new Polygon(array(
                         $volume_points[$i][$j][4 * $hd_ratio],
                         $volume_points[$i + 1][$j][4 * $hd_ratio],
@@ -1095,6 +1120,7 @@ class render3DPlayer
                         $volume_points[0][$j + 1][$k + 1],
                         $volume_points[0][$j + 1][$k]
                     ), imagecolorat($img_png, 16 * $hd_ratio + $k, 20 * $hd_ratio + $j));
+
                     $this->polygons['torso']['left'][]  = new Polygon(array(
                         $volume_points[8 * $hd_ratio][$j][$k],
                         $volume_points[8 * $hd_ratio][$j][$k + 1],
@@ -1112,6 +1138,7 @@ class render3DPlayer
                         $volume_points[$i + 1][0][$k + 1],
                         $volume_points[$i][0][$k + 1]
                     ), imagecolorat($img_png, 20 * $hd_ratio + $i, 16 * $hd_ratio + $k));
+
                     $this->polygons['torso']['bottom'][] = new Polygon(array(
                         $volume_points[$i][12 * $hd_ratio][$k],
                         $volume_points[$i + 1][12 * $hd_ratio][$k],
@@ -1132,6 +1159,7 @@ class render3DPlayer
                             'z' => 0
                         ));
                     }
+
                     if (!isset($volume_points[$i][$j][4 * $hd_ratio])) {
                         $volume_points[$i][$j][4 * $hd_ratio] = new Point(array(
                             'x' => $i - 4 * $hd_ratio,
@@ -1151,6 +1179,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[8 * $hd_ratio][$j][$k])) {
                         $volume_points[4 * $hd_ratio][$j][$k] = new Point(array(
                             'x' => 4 * $hd_ratio - 4 * $hd_ratio,
@@ -1170,6 +1199,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[$i][12 * $hd_ratio][$k])) {
                         $volume_points[$i][12 * $hd_ratio][$k] = new Point(array(
                             'x' => $i - 4 * $hd_ratio,
@@ -1188,6 +1218,7 @@ class render3DPlayer
                         $volume_points[$i + 1][$j + 1][0],
                         $volume_points[$i][$j + 1][0]
                     ), imagecolorat($img_png, (56 * $hd_ratio - 1) - $i, 20 * $hd_ratio + $j));
+
                     $this->polygons['rightArm']['front'][] = new Polygon(array(
                         $volume_points[$i][$j][4 * $hd_ratio],
                         $volume_points[$i + 1][$j][4 * $hd_ratio],
@@ -1205,6 +1236,7 @@ class render3DPlayer
                         $volume_points[0][$j + 1][$k + 1],
                         $volume_points[0][$j + 1][$k]
                     ), imagecolorat($img_png, 40 * $hd_ratio + $k, 20 * $hd_ratio + $j));
+
                     $this->polygons['rightArm']['left'][]  = new Polygon(array(
                         $volume_points[4 * $hd_ratio][$j][$k],
                         $volume_points[4 * $hd_ratio][$j][$k + 1],
@@ -1222,6 +1254,7 @@ class render3DPlayer
                         $volume_points[$i + 1][0][$k + 1],
                         $volume_points[$i][0][$k + 1]
                     ), imagecolorat($img_png, 44 * $hd_ratio + $i, 16 * $hd_ratio + $k));
+
                     $this->polygons['rightArm']['bottom'][] = new Polygon(array(
                         $volume_points[$i][12 * $hd_ratio][$k],
                         $volume_points[$i + 1][12 * $hd_ratio][$k],
@@ -1242,6 +1275,7 @@ class render3DPlayer
                             'z' => 0
                         ));
                     }
+
                     if (!isset($volume_points[$i][$j][4 * $hd_ratio])) {
                         $volume_points[$i][$j][4 * $hd_ratio] = new Point(array(
                             'x' => $i + 8 * $hd_ratio,
@@ -1261,6 +1295,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[8 * $hd_ratio][$j][$k])) {
                         $volume_points[4 * $hd_ratio][$j][$k] = new Point(array(
                             'x' => 4 * $hd_ratio + 8 * $hd_ratio,
@@ -1280,6 +1315,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[$i][12 * $hd_ratio][$k])) {
                         $volume_points[$i][12 * $hd_ratio][$k] = new Point(array(
                             'x' => $i + 8 * $hd_ratio,
@@ -1306,6 +1342,7 @@ class render3DPlayer
                         $volume_points[$i + 1][$j + 1][0],
                         $volume_points[$i][$j + 1][0]
                     ), $color1);
+
                     $this->polygons['leftArm']['front'][] = new Polygon(array(
                         $volume_points[$i][$j][4 * $hd_ratio],
                         $volume_points[$i + 1][$j][4 * $hd_ratio],
@@ -1331,6 +1368,7 @@ class render3DPlayer
                         $volume_points[0][$j + 1][$k + 1],
                         $volume_points[0][$j + 1][$k]
                     ), $color1);
+
                     $this->polygons['leftArm']['left'][]  = new Polygon(array(
                         $volume_points[4 * $hd_ratio][$j][$k],
                         $volume_points[4 * $hd_ratio][$j][$k + 1],
@@ -1356,6 +1394,7 @@ class render3DPlayer
                         $volume_points[$i + 1][0][$k + 1],
                         $volume_points[$i][0][$k + 1]
                     ), $color1);
+
                     $this->polygons['leftArm']['bottom'][] = new Polygon(array(
                         $volume_points[$i][12 * $hd_ratio][$k],
                         $volume_points[$i + 1][12 * $hd_ratio][$k],
@@ -1376,6 +1415,7 @@ class render3DPlayer
                             'z' => 0
                         ));
                     }
+
                     if (!isset($volume_points[$i][$j][4 * $hd_ratio])) {
                         $volume_points[$i][$j][4 * $hd_ratio] = new Point(array(
                             'x' => $i,
@@ -1395,6 +1435,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[8 * $hd_ratio][$j][$k])) {
                         $volume_points[4 * $hd_ratio][$j][$k] = new Point(array(
                             'x' => 4 * $hd_ratio,
@@ -1414,6 +1455,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[$i][12 * $hd_ratio][$k])) {
                         $volume_points[$i][12 * $hd_ratio][$k] = new Point(array(
                             'x' => $i,
@@ -1432,6 +1474,7 @@ class render3DPlayer
                         $volume_points[$i + 1][$j + 1][0],
                         $volume_points[$i][$j + 1][0]
                     ), imagecolorat($img_png, (16 * $hd_ratio - 1) - $i, 20 * $hd_ratio + $j));
+
                     $this->polygons['rightLeg']['front'][] = new Polygon(array(
                         $volume_points[$i][$j][4 * $hd_ratio],
                         $volume_points[$i + 1][$j][4 * $hd_ratio],
@@ -1449,6 +1492,7 @@ class render3DPlayer
                         $volume_points[0][$j + 1][$k + 1],
                         $volume_points[0][$j + 1][$k]
                     ), imagecolorat($img_png, 0 + $k, 20 * $hd_ratio + $j));
+
                     $this->polygons['rightLeg']['left'][]  = new Polygon(array(
                         $volume_points[4 * $hd_ratio][$j][$k],
                         $volume_points[4 * $hd_ratio][$j][$k + 1],
@@ -1466,6 +1510,7 @@ class render3DPlayer
                         $volume_points[$i + 1][0][$k + 1],
                         $volume_points[$i][0][$k + 1]
                     ), imagecolorat($img_png, 4 * $hd_ratio + $i, 16 * $hd_ratio + $k));
+
                     $this->polygons['rightLeg']['bottom'][] = new Polygon(array(
                         $volume_points[$i][12 * $hd_ratio][$k],
                         $volume_points[$i + 1][12 * $hd_ratio][$k],
@@ -1486,6 +1531,7 @@ class render3DPlayer
                             'z' => 0
                         ));
                     }
+
                     if (!isset($volume_points[$i][$j][4 * $hd_ratio])) {
                         $volume_points[$i][$j][4 * $hd_ratio] = new Point(array(
                             'x' => $i + 4 * $hd_ratio,
@@ -1505,6 +1551,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[8 * $hd_ratio][$j][$k])) {
                         $volume_points[4 * $hd_ratio][$j][$k] = new Point(array(
                             'x' => 4 * $hd_ratio + 4 * $hd_ratio,
@@ -1524,6 +1571,7 @@ class render3DPlayer
                             'z' => $k
                         ));
                     }
+
                     if (!isset($volume_points[$i][12 * $hd_ratio][$k])) {
                         $volume_points[$i][12 * $hd_ratio][$k] = new Point(array(
                             'x' => $i + 4 * $hd_ratio,
@@ -1550,6 +1598,7 @@ class render3DPlayer
                         $volume_points[$i + 1][$j + 1][0],
                         $volume_points[$i][$j + 1][0]
                     ), $color1);
+
                     $this->polygons['leftLeg']['front'][] = new Polygon(array(
                         $volume_points[$i][$j][4 * $hd_ratio],
                         $volume_points[$i + 1][$j][4 * $hd_ratio],
@@ -1575,6 +1624,7 @@ class render3DPlayer
                         $volume_points[0][$j + 1][$k + 1],
                         $volume_points[0][$j + 1][$k]
                     ), $color1);
+
                     $this->polygons['leftLeg']['left'][]  = new Polygon(array(
                         $volume_points[4 * $hd_ratio][$j][$k],
                         $volume_points[4 * $hd_ratio][$j][$k + 1],
@@ -1600,6 +1650,7 @@ class render3DPlayer
                         $volume_points[$i + 1][0][$k + 1],
                         $volume_points[$i][0][$k + 1]
                     ), $color1);
+
                     $this->polygons['leftLeg']['bottom'][] = new Polygon(array(
                         $volume_points[$i][12 * $hd_ratio][$k],
                         $volume_points[$i + 1][12 * $hd_ratio][$k],
@@ -1681,6 +1732,7 @@ class render3DPlayer
         $width = $maxX - $minX;
         $height = $maxY - $minY;
         $ratio = $this->ratio;
+
         if ($ratio < 2) {
             $ratio = 2;
         }
@@ -1769,6 +1821,7 @@ class render3DPlayer
     private function getDisplayOrder()
     {
         $display_order = array();
+
         if (in_array('top', $this->front_faces)) {
             if (in_array('right', $this->front_faces)) {
                 $display_order[] = array('leftLeg' => $this->back_faces);
@@ -1853,7 +1906,9 @@ class img
     {
         $dst = imagecreatetruecolor($w, $h);
         imagesavealpha($dst, true);
+
         $trans_colour = imagecolorallocatealpha($dst, 255, 255, 255, 127);
+
         imagefill($dst, 0, 0, $trans_colour);
 
         return $dst;
@@ -2070,6 +2125,7 @@ class Polygon
 
         if (!($same_plan_x || $same_plan_y)) {
             $colour = imagecolorallocate($image, $r, $g, $b);
+
             imagefilledpolygon($image, $points_2d, $nb_points, $colour);
         }
     }
