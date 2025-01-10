@@ -76,7 +76,8 @@ function grabGetValue($name)
         'format' => array('old' => 'format', 'default' => 'png'),
         'ratio' => array('old' => 'ratio', 'default' => '12'),
         'aa' => array('old' => 'aa', 'default' => 'false'),
-        'layers' => array('old' => 'layers', 'default' => 'true')
+        'layers' => array('old' => 'layers', 'default' => 'true'),
+        'forceSquare' => array('old' => 'forceSquare', 'default' => 'false'),
     );
 
     if (array_key_exists($name, $parameters)) {
@@ -110,7 +111,8 @@ if (grabGetValue('user') !== false) {
         grabGetValue('format'),
         grabGetValue('ratio'),
         grabGetValue('aa'),
-        grabGetValue('layers')
+        grabGetValue('layers'),
+        grabGetValue('forceSquare')
     );
 
     $player->get3DRender('browser');
@@ -142,6 +144,7 @@ class render3DPlayer
     private $ratio = null;
     private $aa = null;
     private $layers = null;
+    private $forceSquare = null;
 
     // Rotation variables in radians (3D Rendering)
     private $alpha = null; // Vertical rotation on the X axis.
@@ -162,7 +165,7 @@ class render3DPlayer
 
     private $times = null;
 
-    public function __construct($user, $cosmetic, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers)
+    public function __construct($user, $cosmetic, $vr, $hr, $hrh, $vrll, $vrrl, $vrla, $vrra, $displayHair, $headOnly, $format, $ratio, $aa, $layers, $forceSquare)
     {
         $this->playerName = $user;
         $this->playerCosmetic = $cosmetic;
@@ -179,6 +182,7 @@ class render3DPlayer
         $this->ratio = $ratio;
         $this->aa = ($aa == 'true');
         $this->layers = ($layers == 'true');
+        $this->forceSquare = ($forceSquare == 'true');
     }
 
     /*
@@ -1721,6 +1725,25 @@ class render3DPlayer
         }
     }
 
+    /**
+     * Adjust the given image to make it have a 1:1 ratio. In other
+     * words, make the given image fit in the smallest square image
+     * possible.
+     * 
+     * @param GdImage $image the image to fit in a square
+     * @param int $width the width of the given image
+     * @param int $height the height of the given image
+     * @return GdImage the square image corresponding to the given one
+     */
+    private function setImageSquare($image, $width, $height) {
+        $maxSide = max($width, $height);
+        $offsetX = ($maxSide - $width) / 2;
+        $offsetY = ($maxSide - $height) / 2;
+        $square = img::createEmptyCanvas($maxSide, $maxSide);
+        imagecopy($square, $image, $offsetX, $offsetY, 0, 0, $width, $height);
+        return $square;
+    }
+
     /*
      * Function displays the image
      */
@@ -1810,6 +1833,9 @@ class render3DPlayer
                 $imgOutput = base64_encode($imgData);
                 imagedestroy($image);
             }
+            
+            if ($this->forceSquare)
+                $imgOutput = $this->setImageSquare($imgOutput, $realWidth, $realHeight);
         }
 
         return $imgOutput;
